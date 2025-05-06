@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "418868245008",
+    "project_id": "mycrochetbag-47372",
+    "storage_bucket": "mycrochetbag-47372.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418868245008:android:5fb04cd71f08e84e5b1095",
+        "android_client_info": {
+          "package_name": "com.example.mycrochetbag"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCebo-z47lE8BaCzfiLiCC2kVTd8r0YJSA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

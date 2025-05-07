@@ -55,6 +55,12 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
         'role': "customer",
       });
       return Result.ok(null);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        return Result.error(Exception(e.toString()));
+      } else {
+        return Result.error(Exception("Something went wrong"));
+      }
     } catch (e) {
       return Result.error(Exception(e.toString()));
     }

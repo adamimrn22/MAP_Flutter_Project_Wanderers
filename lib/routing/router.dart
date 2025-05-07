@@ -15,7 +15,7 @@ import 'package:provider/provider.dart';
 
 // Main router setup
 GoRouter router(AuthServices authServices) => GoRouter(
-  initialLocation: Routes.login,
+  initialLocation: Routes.signUp,
   debugLogDiagnostics: true,
   redirect: buildRedirect(authServices),
   refreshListenable: authServices,
@@ -54,164 +54,80 @@ GoRouter router(AuthServices authServices) => GoRouter(
 
 buildRedirect(AuthServices authServices) {
   return (BuildContext context, GoRouterState state) async {
-    // Check authentication status
-    final loggedIn = authServices.currentUser != null;
-    // Check if user is on login or signup page
-    final isLoggingIn =
+    // Check if user is on authentication pages
+    final isAuthPage =
         state.matchedLocation == Routes.login ||
         state.matchedLocation == Routes.signUp;
 
-    // If not logged in and not on login/signup page, redirect to login
-    if (!loggedIn && !isLoggingIn) {
-      print('true');
+    // Check if user is logged in
+    final isLoggedIn = authServices.currentUser != null;
+
+    // Not logged in and not on auth page -> redirect to login
+    if (!isLoggedIn && !isAuthPage) {
       return Routes.login;
     }
 
-    // If logged in, fetch user role and redirect accordingly
-    if (loggedIn) {
-      print('test');
+    // Logged in -> verify role and handle proper routing
+    if (isLoggedIn) {
       try {
         final role = await authServices.getUserRole();
+
+        // If role is missing, sign out and redirect to login
         if (role == null) {
-          // If role is missing, redirect to login and optionally sign out
           await authServices.signOut();
           return Routes.login;
         }
 
-        // If user is on login/signup page, redirect based on role
-        if (isLoggingIn) {
-          switch (role) {
-            case 'admin':
-              return Routes.adminHome;
-            case 'customer':
-              return Routes.customerHome;
-            case 'seller':
-              return Routes.sellerHome;
-            default:
-              return Routes.login;
-          }
+        // Get the home route for current user role
+        final homeRoute = _getHomeRouteForRole(role);
+
+        // If on auth page, redirect to appropriate home
+        if (isAuthPage) {
+          return homeRoute;
         }
 
-        // Restrict access to role-specific routes
-        final goingToAdminRoute = state.matchedLocation == Routes.adminHome;
-        final goingToCustomerRoute =
-            state.matchedLocation == Routes.customerHome;
-        final goingToSellerRoute = state.matchedLocation == Routes.sellerHome;
+        // Check if user is trying to access a route not meant for their role
+        final isAccessingAdminRoute = state.matchedLocation.startsWith(
+          '/admin',
+        );
+        final isAccessingCustomerRoute = state.matchedLocation.startsWith(
+          '/customer',
+        );
+        final isAccessingSellerRoute = state.matchedLocation.startsWith(
+          '/seller',
+        );
 
-        if ((goingToAdminRoute && role != 'admin') ||
-            (goingToCustomerRoute && role != 'customer') ||
-            (goingToSellerRoute && role != 'seller')) {
-          switch (role) {
-            case 'admin':
-              return Routes.adminHome;
-            case 'customer':
-              return Routes.customerHome;
-            case 'seller':
-              return Routes.sellerHome;
-            default:
-              return Routes.login;
-          }
+        final isAccessingWrongRoute =
+            (isAccessingAdminRoute && role != 'admin') ||
+            (isAccessingCustomerRoute && role != 'customer') ||
+            (isAccessingSellerRoute && role != 'seller');
+
+        // If accessing wrong route, redirect to appropriate home
+        if (isAccessingWrongRoute) {
+          return homeRoute;
         }
       } catch (e) {
-        print('Error in redirect: $e');
-        // On error, redirect to login
+        // Log error and handle gracefully
+        debugPrint('Error during route redirection: $e');
         await authServices.signOut();
         return Routes.login;
       }
     }
 
-    print('test');
+    // Allow the navigation to proceed (return null)
+    return null;
   };
 }
 
-// Future<String?> Function(BuildContext, GoRouterState) buildRedirect(
-//   AuthServices authServices,
-// ) {
-//   return (BuildContext context, GoRouterState state) async {
-//     // Check if the user is authenticated
-//     final loggedIn = await _getAuthenticationStatus(context);
-
-//     // Check if user is on login or signup page
-//     final isLoggingIn =
-//         state.matchedLocation == Routes.login ||
-//         state.matchedLocation == Routes.signUp;
-
-//     // If not logged in and not on login/signup page, redirect to login
-//     if (!loggedIn && !isLoggingIn) {
-//       return Routes.login;
-//     }
-
-//     // If logged in, check the role and redirect based on role
-//     if (loggedIn) {
-//       // get the user role
-//       final user = FirebaseAuth.instance.currentUser;
-//       if (user != null) {
-//         try {
-//           final userDoc =
-//               await FirebaseFirestore.instance
-//                   .collection('users')
-//                   .doc(user.uid)
-//                   .get();
-
-//           if (userDoc.exists) {
-//             final role = userDoc.get('role') as String?;
-
-//             // If user is on login page but already logged in, redirect based on role
-//             if (isLoggingIn) {
-//               switch (role) {
-//                 case 'admin':
-//                   return Routes.adminHome;
-//                 case 'customer':
-//                   return Routes.customerHome;
-//                 case 'seller':
-//                   return Routes.sellerHome;
-//                 default:
-//                   // If role is invalid, let them stay on login page
-//                   return null;
-//               }
-//             }
-
-//             // Make sure users can only access routes appropriate for their role
-//             final goingToAdminRoute = state.matchedLocation == Routes.adminHome;
-//             final goingToCustomerRoute =
-//                 state.matchedLocation == Routes.customerHome;
-//             final goingToSellerRoute =
-//                 state.matchedLocation == Routes.sellerHome;
-
-//             if ((goingToAdminRoute && role != 'admin') ||
-//                 (goingToCustomerRoute && role != 'customer') ||
-//                 (goingToSellerRoute && role != 'seller')) {
-//               // Redirect to the appropriate home based on role
-//               switch (role) {
-//                 case 'admin':
-//                   return Routes.adminHome;
-//                 case 'customer':
-//                   return Routes.customerHome;
-//                 case 'seller':
-//                   return Routes.sellerHome;
-//                 default:
-//                   return Routes.login;
-//               }
-//             }
-//           }
-//         } catch (e) {
-//           print('Error fetching user role: $e');
-//           // If there's an error, direct to login
-//           return Routes.login;
-//         }
-//       }
-//     }
-
-//     // No redirect needed
-//     return null;
-//   };
-// }
-
-// One-time check for auth status
-// Future<bool> _getAuthenticationStatus(BuildContext context) async {
-//   final isAuthenticatedStream =
-//       context.read<AuthServices>().isAuthenticatedStream;
-
-//   final loggedIn = await isAuthenticatedStream.first;
-//   return loggedIn;
-// }
+String _getHomeRouteForRole(String role) {
+  switch (role) {
+    case 'admin':
+      return Routes.adminHome;
+    case 'customer':
+      return Routes.customerHome;
+    case 'seller':
+      return Routes.sellerHome;
+    default:
+      return Routes.login;
+  }
+}

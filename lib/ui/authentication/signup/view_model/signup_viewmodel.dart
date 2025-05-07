@@ -20,6 +20,7 @@ class SignUpViewmodel extends ChangeNotifier {
     );
     if (result is Error<void>) {
       print('Login failed! ${result.error}');
+      return result;
     }
     return result;
   }

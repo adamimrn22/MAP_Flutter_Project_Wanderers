@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mycrochetbag/ui/core/themes/themes.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:mycrochetbag/data/services/auth_services.dart';
@@ -28,10 +29,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'My Crochet Bag',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        // Add more theme configurations as needed
-      ),
+      theme: roseBlushTheme,
       routerConfig: router(authServices),
     );
   }

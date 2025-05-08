@@ -3,86 +3,45 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/routing/routes.dart';
 import 'package:mycrochetbag/ui/authentication/signup/view_model/signup_viewmodel.dart';
+import 'package:provider/provider.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key, required this.viewModel});
   final SignUpViewmodel viewModel;
 
   @override
-  State<SignUpScreen> createState() => _SignupScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: viewModel,
+      child: const _SignupScreenContent(),
+    );
+  }
 }
 
-class _SignupScreenState extends State<SignUpScreen> {
-  final _formKey = GlobalKey<FormState>();
+class _SignupScreenContent extends StatefulWidget {
+  const _SignupScreenContent();
 
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-
-  bool _isLoading = false;
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-
-  String? _errorMessage;
   @override
-  void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
+  State<_SignupScreenContent> createState() => _SignupScreenContentState();
+}
 
-  String? _validateName(String? value) {
-    if (value == null || value.isEmpty) return 'This field is required';
-    if (RegExp(r'[0-9]').hasMatch(value)) return 'Name cannot contain numbers';
-    return null;
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) return 'Email is required';
-    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-      return 'Enter a valid email';
-    }
-    return null;
-  }
-
-  String? _validatePhone(String? value) {
-    if (value == null || value.isEmpty) return 'Phone number is required';
-    if (!RegExp(r'^\d{3}-\d{4,}$').hasMatch(value)) {
-      return 'Invalid format (e.g. 010-1234567)';
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'Password is required';
-    return null;
-  }
-
-  String? _validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) return 'Please confirm password';
-    if (value != _passwordController.text) return 'Passwords do not match';
-    return null;
-  }
+class _SignupScreenContentState extends State<_SignupScreenContent> {
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<SignUpViewmodel>(context);
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 Text(
                   "Create An Account",
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -95,185 +54,209 @@ class _SignupScreenState extends State<SignUpScreen> {
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: Colors.blueGrey),
                 ),
-                SizedBox(height: 30),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _firstNameController,
-                        decoration: InputDecoration(
-                          labelText: "First Name",
-                          labelStyle: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.person,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          hintText: "Ahmad",
-                        ),
-                        validator: _validateName,
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _lastNameController,
-                        decoration: InputDecoration(
-                          labelText: "Last Name",
-                          labelStyle: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.person,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          hintText: "Doe",
-                        ),
-                        validator: _validateName,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15),
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    _PhoneNumberFormatter(),
-                  ],
-                  style: TextStyle(color: Theme.of(context).primaryColor),
-                  decoration: InputDecoration(
-                    labelText: "Phone Number",
-                    labelStyle: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.phone,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    hintText: "010-1234567",
-                  ),
-                  validator: _validatePhone,
-                ),
-                SizedBox(height: 15),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: "Email Address",
-                    labelStyle: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.mail,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    hintText: "ahmadoe@email.com",
-                  ),
-                  validator: _validateEmail,
-                ),
-                SizedBox(height: 15),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    labelStyle: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.lock,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      onPressed:
-                          () => setState(
-                            () => _obscurePassword = !_obscurePassword,
-                          ),
-                    ),
-                  ),
-                  validator: _validatePassword,
-                ),
-                SizedBox(height: 15),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  obscureText: _obscureConfirmPassword,
-                  decoration: InputDecoration(
-                    labelText: "Confirm Password",
-                    labelStyle: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.lock,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirmPassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      onPressed:
-                          () => setState(
-                            () =>
-                                _obscureConfirmPassword =
-                                    !_obscureConfirmPassword,
-                          ),
-                    ),
-                  ),
-                  validator: _validateConfirmPassword,
-                ),
-                SizedBox(height: 20),
-
-                _isLoading
-                    ? const CircularProgressIndicator()
-                    : SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                          setState(() {
-                            _isLoading = true;
-                          });
-                          if (_formKey.currentState?.validate() == true) {
-                            widget.viewModel.signUp((
-                              _firstNameController.text,
-                              _lastNameController.text,
-                              _emailController.text,
-                              _phoneController.text,
-                              _passwordController.text,
-                            ));
-                          }
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        },
-                        child: Text("Sign Up"),
-                      ),
-                    ),
-
-                SizedBox(height: 10),
-                Center(
-                  child: TextButton(
-                    onPressed: () => context.go(Routes.login),
-                    child: Text(
-                      "Already have an account? Sign In Here",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.blueGrey, // Text color
-                        fontWeight: FontWeight.bold, // Bold text
-                      ),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 30),
+                _buildNameFields(viewModel),
+                const SizedBox(height: 15),
+                _buildPhoneField(viewModel),
+                const SizedBox(height: 15),
+                _buildEmailField(viewModel),
+                const SizedBox(height: 15),
+                _buildPasswordField(viewModel),
+                const SizedBox(height: 15),
+                _buildConfirmPasswordField(viewModel),
+                const SizedBox(height: 20),
+                if (viewModel.hasError && viewModel.errorMessage != null)
+                  _buildErrorMessage(viewModel),
+                const SizedBox(height: 10),
+                _buildSignUpButton(viewModel),
+                const SizedBox(height: 10),
+                _buildSignInLink(context),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNameFields(SignUpViewmodel viewModel) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextFormField(
+            controller: viewModel.firstNameController,
+            decoration: InputDecoration(
+              labelText: "First Name",
+              labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+              prefixIcon: Icon(
+                Icons.person,
+                color: Theme.of(context).primaryColor,
+              ),
+              hintText: "Ahmad",
+            ),
+            validator: viewModel.validateName,
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: TextFormField(
+            controller: viewModel.lastNameController,
+            decoration: InputDecoration(
+              labelText: "Last Name",
+              labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+              prefixIcon: Icon(
+                Icons.person,
+                color: Theme.of(context).primaryColor,
+              ),
+              hintText: "Doe",
+            ),
+            validator: viewModel.validateName,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhoneField(SignUpViewmodel viewModel) {
+    return TextFormField(
+      controller: viewModel.phoneController,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        _PhoneNumberFormatter(),
+      ],
+      style: TextStyle(color: Theme.of(context).primaryColor),
+      decoration: InputDecoration(
+        labelText: "Phone Number",
+        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+        prefixIcon: Icon(Icons.phone, color: Theme.of(context).primaryColor),
+        hintText: "010-1234567",
+      ),
+      validator: viewModel.validatePhone,
+    );
+  }
+
+  Widget _buildEmailField(SignUpViewmodel viewModel) {
+    return TextFormField(
+      controller: viewModel.emailController,
+      decoration: InputDecoration(
+        labelText: "Email Address",
+        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+        prefixIcon: Icon(Icons.mail, color: Theme.of(context).primaryColor),
+        hintText: "ahmadoe@email.com",
+      ),
+      validator: viewModel.validateEmail,
+    );
+  }
+
+  Widget _buildPasswordField(SignUpViewmodel viewModel) {
+    return TextFormField(
+      controller: viewModel.passwordController,
+      obscureText: viewModel.obscurePassword,
+      decoration: InputDecoration(
+        labelText: "Password",
+        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+        prefixIcon: Icon(Icons.lock, color: Theme.of(context).primaryColor),
+        suffixIcon: IconButton(
+          icon: Icon(
+            viewModel.obscurePassword ? Icons.visibility : Icons.visibility_off,
+            color: Theme.of(context).primaryColor,
+          ),
+          onPressed: viewModel.togglePasswordVisibility,
+        ),
+      ),
+      validator: viewModel.validatePassword,
+    );
+  }
+
+  Widget _buildConfirmPasswordField(SignUpViewmodel viewModel) {
+    return TextFormField(
+      controller: viewModel.confirmPasswordController,
+      obscureText: viewModel.obscureConfirmPassword,
+      decoration: InputDecoration(
+        labelText: "Confirm Password",
+        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+        prefixIcon: Icon(Icons.lock, color: Theme.of(context).primaryColor),
+        suffixIcon: IconButton(
+          icon: Icon(
+            viewModel.obscureConfirmPassword
+                ? Icons.visibility
+                : Icons.visibility_off,
+            color: Theme.of(context).primaryColor,
+          ),
+          onPressed: viewModel.toggleConfirmPasswordVisibility,
+        ),
+      ),
+      validator: viewModel.validateConfirmPassword,
+    );
+  }
+
+  Widget _buildErrorMessage(SignUpViewmodel viewModel) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: Colors.red.shade700),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              viewModel.errorMessage!,
+              style: TextStyle(color: Colors.red.shade700),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 16),
+            color: Colors.red.shade700,
+            onPressed: viewModel.clearError,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSignUpButton(SignUpViewmodel viewModel) {
+    return SizedBox(
+      width: double.infinity,
+      child:
+          viewModel.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : FilledButton(
+                onPressed: () async {
+                  if (_formKey.currentState?.validate() == true) {
+                    final result = await viewModel.signUp();
+                    if (result.isOk) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Account created successfully!"),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        context.go(Routes.login);
+                      }
+                    }
+                  }
+                },
+                child: const Text("Sign Up"),
+              ),
+    );
+  }
+
+  Widget _buildSignInLink(BuildContext context) {
+    return Center(
+      child: TextButton(
+        onPressed: () => context.go(Routes.login),
+        child: Text(
+          "Already have an account? Sign In Here",
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Colors.blueGrey,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),

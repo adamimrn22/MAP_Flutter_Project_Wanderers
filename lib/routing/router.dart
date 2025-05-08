@@ -1,5 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/data/services/auth_services.dart';
 import 'package:mycrochetbag/routing/routes.dart';
@@ -15,7 +13,7 @@ import 'package:provider/provider.dart';
 
 // Main router setup
 GoRouter router(AuthServices authServices) => GoRouter(
-  initialLocation: Routes.signUp,
+  initialLocation: Routes.login,
   debugLogDiagnostics: true,
   redirect: buildRedirect(authServices),
   refreshListenable: authServices,
@@ -54,7 +52,7 @@ GoRouter router(AuthServices authServices) => GoRouter(
 
 buildRedirect(AuthServices authServices) {
   return (BuildContext context, GoRouterState state) async {
-    // Check if user is on authentication pages
+    // Check if user is on login or singup screen
     final isAuthPage =
         state.matchedLocation == Routes.login ||
         state.matchedLocation == Routes.signUp;
@@ -67,7 +65,7 @@ buildRedirect(AuthServices authServices) {
       return Routes.login;
     }
 
-    // Logged in -> verify role and handle proper routing
+    // Logged in -> verify role and handle rbac
     if (isLoggedIn) {
       try {
         final role = await authServices.getUserRole();
@@ -81,7 +79,7 @@ buildRedirect(AuthServices authServices) {
         // Get the home route for current user role
         final homeRoute = _getHomeRouteForRole(role);
 
-        // If on auth page, redirect to appropriate home
+        // If on auth route (login, signup), redirect to user role home route
         if (isAuthPage) {
           return homeRoute;
         }
@@ -107,8 +105,8 @@ buildRedirect(AuthServices authServices) {
           return homeRoute;
         }
       } catch (e) {
-        // Log error and handle gracefully
-        debugPrint('Error during route redirection: $e');
+        // Log error
+        print('Error during route redirection: $e');
         await authServices.signOut();
         return Routes.login;
       }
@@ -119,6 +117,7 @@ buildRedirect(AuthServices authServices) {
   };
 }
 
+// check user role
 String _getHomeRouteForRole(String role) {
   switch (role) {
     case 'admin':

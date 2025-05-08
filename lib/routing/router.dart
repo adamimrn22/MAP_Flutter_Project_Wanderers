@@ -2,13 +2,12 @@ import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/data/services/auth_services.dart';
 import 'package:mycrochetbag/routing/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:mycrochetbag/ui/admin/admin_homepage/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/admin/widgets/admin_main_screen.dart';
 import 'package:mycrochetbag/ui/authentication/login/widgets/login_screen.dart';
-import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodeL.dart';
 import 'package:mycrochetbag/ui/authentication/signup/view_model/signup_viewmodel.dart';
 import 'package:mycrochetbag/ui/authentication/signup/widgets/signup_screen.dart';
-import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/homepage_screen.dart';
-import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/customer/widgets/customer_main_screen.dart';
+import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
 import 'package:provider/provider.dart';
 
 // Main router setup
@@ -30,18 +29,15 @@ GoRouter router(AuthServices authServices) => GoRouter(
     ),
     GoRoute(
       path: Routes.adminHome,
-      builder: (context, state) => const AdminHomepageScreen(),
+      builder: (context, state) => const AdminMainScreen(),
     ),
     GoRoute(
       path: Routes.customerHome,
-      builder:
-          (context, state) => CustomerHomepageScreen(
-            viewModel: SignoutViewmodel(context.read()),
-          ),
+      builder: (context, state) => const CustomerMainScreen(),
     ),
     GoRoute(
       path: Routes.sellerHome,
-      builder: (context, state) => const SellerHomepageScreen(),
+      builder: (context, state) => const SellerMainScreen(),
     ),
   ],
   errorBuilder:

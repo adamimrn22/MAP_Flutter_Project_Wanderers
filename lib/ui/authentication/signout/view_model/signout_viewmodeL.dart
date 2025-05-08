@@ -2,12 +2,12 @@ import 'package:mycrochetbag/data/services/auth_services.dart';
 import 'package:mycrochetbag/utils/result.dart';
 
 class SignoutViewmodel {
-  final AuthServices _authServices;
+  final AuthServices authServices = AuthServices();
 
-  SignoutViewmodel(this._authServices);
+  SignoutViewmodel();
 
   Future<Result<void>> signout() {
-    final result = _authServices.signOut();
+    final result = authServices.signOut();
     if (result is Error<void>) {
       print('Login failed! $result');
     }

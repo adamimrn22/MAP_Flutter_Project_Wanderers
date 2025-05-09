@@ -58,10 +58,7 @@ class _CustomerBottomNavBarState extends State<CustomerBottomNavBar> {
         });
         widget.onTap(index);
         if (index == 4) {
-          context.go('${Routes.customerHome}/profile');
-        } else if (index == 0) {
-          context.go(Routes.customerHome);
-        }
+        } else if (index == 0) {}
         //  else if (index == 1) {
         //   context.go('/custom');
         // }

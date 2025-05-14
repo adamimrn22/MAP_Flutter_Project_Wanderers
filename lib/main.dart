@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:mycrochetbag/data/services/auth_services.dart';
 import 'package:mycrochetbag/routing/router.dart';
+import 'package:mycrochetbag/ui/customer/customer_profile/view_model/customer_profile_viewmodel.dart'; // Make sure you have this file
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,8 +14,14 @@ Future<void> main() async {
   final authServices = AuthServices();
 
   runApp(
-    ChangeNotifierProvider<AuthServices>.value(
-      value: authServices,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthServices>.value(value: authServices),
+        ChangeNotifierProvider<CustomerProfileViewModel>(
+          create: (_) => CustomerProfileViewModel(),
+        ),
+        // You can add more providers here if needed
+      ],
       child: MainApp(authServices: authServices),
     ),
   );

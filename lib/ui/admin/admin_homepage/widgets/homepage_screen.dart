@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodeL.dart';
+import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart';
 
 class AdminHomepageScreen extends StatefulWidget {
   final SignoutViewmodel viewModel;

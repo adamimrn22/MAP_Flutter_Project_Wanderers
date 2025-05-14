@@ -17,4 +17,8 @@ abstract class AuthRepository {
     required String oobCode,
     required String newPassword,
   });
+  Future<Result<void>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  });
 }

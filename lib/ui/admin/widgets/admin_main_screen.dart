@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycrochetbag/ui/admin/admin_homepage/widgets/homepage_screen.dart';
 import 'package:mycrochetbag/ui/admin/widgets/admin_bottom_navigation_bar_widget.dart';
-import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodeL.dart';
+import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart';
 
 class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({super.key});

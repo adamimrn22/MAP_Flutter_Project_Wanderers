@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodeL.dart';
+import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart';
 import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_profile/widgets/profile_screen.dart';
 import 'package:mycrochetbag/ui/customer/widgets/customer_bottom_navigation_bar_widget.dart';
 
 class CustomerMainScreen extends StatefulWidget {
@@ -19,16 +20,19 @@ class _CustomerMainScreenState extends State<CustomerMainScreen> {
   @override
   void initState() {
     super.initState();
-    // ADD SCREEN HEREEEE
-    _screens = [CustomerHomepageScreen(viewModel: viewModel)];
+    _screens = [
+      CustomerHomepageScreen(viewModel: viewModel),
+      const Scaffold(body: Center(child: Text('Custom Screen'))),
+      const Scaffold(body: Center(child: Text('Cart Screen'))),
+      const Scaffold(body: Center(child: Text('Orders Screen'))),
+      ProfileScreen(viewModel: viewModel), // Pass viewModel to ProfileScreen
+    ];
   }
 
   void _onItemTapped(int index) {
-    if (index < _screens.length) {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override

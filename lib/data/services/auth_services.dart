@@ -14,7 +14,6 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
 
   User? get currentUser => _auth.currentUser;
 
-  // Constructor to setup auth state listener
   AuthServices() {
     _auth.authStateChanges().listen((_) {
       notifyListeners();
@@ -95,5 +94,46 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
       }
     }
     return null;
+  }
+
+  @override
+  Future<Result<void>> sendPasswordResetEmail({required String email}) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return Result.ok(null);
+    } on FirebaseAuthException catch (e) {
+      return Result.error(Exception(e.message ?? 'Failed to send reset email'));
+    } catch (e) {
+      return Result.error(Exception(e.toString()));
+    }
+  }
+
+  Future<Result<String>> verifyPasswordResetCode({
+    required String oobCode,
+  }) async {
+    try {
+      final email = await _auth.verifyPasswordResetCode(oobCode);
+      return Result.ok(email);
+    } on FirebaseAuthException catch (e) {
+      return Result.error(
+        Exception(e.message ?? 'Invalid or expired reset code'),
+      );
+    } catch (e) {
+      return Result.error(Exception(e.toString()));
+    }
+  }
+
+  Future<Result<void>> confirmPasswordReset({
+    required String oobCode,
+    required String newPassword,
+  }) async {
+    try {
+      await _auth.confirmPasswordReset(code: oobCode, newPassword: newPassword);
+      return Result.ok(null);
+    } on FirebaseAuthException catch (e) {
+      return Result.error(Exception(e.message ?? 'Failed to reset password'));
+    } catch (e) {
+      return Result.error(Exception(e.toString()));
+    }
   }
 }

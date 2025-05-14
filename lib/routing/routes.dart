@@ -5,4 +5,5 @@ abstract final class Routes {
   static const adminHome = '/admin';
   static const customerHome = '/customer';
   static const sellerHome = '/seller';
+  static const resetPassword = '/reset-password';
 }

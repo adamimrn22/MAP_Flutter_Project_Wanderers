@@ -11,4 +11,10 @@ abstract class AuthRepository {
     required String phoneNumber,
     required String password,
   });
+  Future<Result<void>> sendPasswordResetEmail({required String email});
+  Future<Result<String>> verifyPasswordResetCode({required String oobCode});
+  Future<Result<void>> confirmPasswordReset({
+    required String oobCode,
+    required String newPassword,
+  });
 }

@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodeL.dart';
 
 class AdminHomepageScreen extends StatefulWidget {
-  final SignoutViewmodel viewModel;
-
-  const AdminHomepageScreen({super.key, required this.viewModel});
+  const AdminHomepageScreen({super.key});
   @override
   State<AdminHomepageScreen> createState() => _AdminHomepageScreenState();
 }
 
 class _AdminHomepageScreenState extends State<AdminHomepageScreen> {
+  final SignoutViewmodel viewModel = SignoutViewmodel();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +18,7 @@ class _AdminHomepageScreenState extends State<AdminHomepageScreen> {
           children: [
             const Text('Admin Dashboard'),
             ElevatedButton(
-              onPressed: () => widget.viewModel.signout(),
+              onPressed: () => viewModel.signout(),
               child: const Text('Sign Out'),
             ),
           ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mycrochetbag/data/services/auth_services.dart';
+import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/utils/result.dart';
 
 class SignUpViewmodel extends ChangeNotifier {

@@ -225,7 +225,7 @@ final ThemeData roseBlushDarkTheme = ThemeData(
     elevation: 4,
     margin: EdgeInsets.all(12),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
+      borderRadius: BorderRadius.all(Radius.circular(10)),
     ),
   ),
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mycrochetbag/ui/core/themes/themes.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-import 'package:mycrochetbag/data/services/auth_services.dart';
+import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/routing/router.dart';
 
 Future<void> main() async {

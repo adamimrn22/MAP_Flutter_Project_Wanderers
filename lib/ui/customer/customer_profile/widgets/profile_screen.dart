@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mycrochetbag/data/services/auth_services.dart';
+import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/routing/routes.dart';
 import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart';
 import 'package:provider/provider.dart';

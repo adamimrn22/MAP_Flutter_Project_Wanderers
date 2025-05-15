@@ -1,7 +1,13 @@
 import 'package:go_router/go_router.dart';
-import 'package:mycrochetbag/data/services/auth_services.dart';
+import 'package:mycrochetbag/data/repositories/auth/firestore_user_repository_impl.dart';
+import 'package:mycrochetbag/data/services/auth_service.dart';
+import 'package:mycrochetbag/data/services/manage_user_service.dart';
 import 'package:mycrochetbag/routing/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:mycrochetbag/ui/admin/admin_homepage/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/admin/user/view_model/user_viewmodel.dart';
+import 'package:mycrochetbag/ui/admin/user/widget/user_detail_screen.dart';
+import 'package:mycrochetbag/ui/admin/user/widget/view_all_user_screen.dart';
 import 'package:mycrochetbag/ui/admin/widgets/admin_main_screen.dart';
 import 'package:mycrochetbag/ui/authentication/login/widgets/login_screen.dart';
 import 'package:mycrochetbag/ui/authentication/signup/view_model/signup_viewmodel.dart';
@@ -11,9 +17,11 @@ import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
 import 'package:mycrochetbag/ui/authentication/forgot_password/widgets/reset_password_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../domain/model/User.dart';
+
 // Main router setup
 GoRouter router(AuthServices authServices) => GoRouter(
-  initialLocation: Routes.login,
+  initialLocation: Routes.viewAllUser,
   debugLogDiagnostics: true,
   redirect: buildRedirect(authServices),
   refreshListenable: authServices,
@@ -28,10 +36,10 @@ GoRouter router(AuthServices authServices) => GoRouter(
           (context, state) =>
               SignUpScreen(viewModel: SignUpViewmodel(context.read())),
     ),
-    GoRoute(
-      path: Routes.adminHome,
-      builder: (context, state) => const AdminMainScreen(),
-    ),
+    // GoRoute(
+    //   path: Routes.adminHome,
+    //   builder: (context, state) => const AdminMainScreen(),
+    // ),
     GoRoute(
       path: Routes.customerHome,
       builder: (context, state) => const CustomerMainScreen(),
@@ -47,6 +55,76 @@ GoRouter router(AuthServices authServices) => GoRouter(
         return ResetPasswordScreen(oobCode: oobCode);
       },
     ),
+    ShellRoute(
+      builder: (context, state, child) {
+        return AdminMainScreen(child: child); // shared layout
+      },
+      routes: [
+        GoRoute(
+          path: Routes.adminHome,
+          builder: (context, state) => AdminHomepageScreen(),
+        ),
+        GoRoute(
+          path: Routes.viewAllUser,
+          builder: (context, state) {
+            return ChangeNotifierProvider(
+              create:
+                  (_) => UserViewModel(
+                    userService: ManageUserService(
+                      userRepository: FirestoreUserRepository(),
+                    ),
+                  )..fetchUsers(),
+              child: const ViewAllUserScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          path: Routes.userDetails,
+          builder: (context, state) {
+            final userId = state.pathParameters['userId'] ?? '';
+
+            // Use the same ViewModel provider from the parent route
+            return ChangeNotifierProvider(
+              create:
+                  (_) => UserViewModel(
+                    userService: ManageUserService(
+                      userRepository: FirestoreUserRepository(),
+                    ),
+                  )..fetchUserById(userId),
+              child: UserDetailsScreen(userId: userId),
+            );
+          },
+        ),
+        GoRoute(
+          path: Routes.addUser,
+          builder: (context, state) { 
+            return ChangeNotifierProvider(
+              create:
+                  (_) => UserViewModel(
+                    userService: ManageUserService(
+                      userRepository: FirestoreUserRepository(),
+                    ),
+                  )..createUser() ,
+              child: UserDetailsScreen(userId: userId),
+            );
+          },
+        ),
+      ],
+    ),
+    // GoRoute(
+    //   path: Routes.viewAllUser,
+    //   builder: (context, state) {
+    //     return ChangeNotifierProvider(
+    //       create:
+    //           (_) => UserViewModel(
+    //             userService: ManageUserService(
+    //               userRepository: FirestoreUserRepository(),
+    //             ),
+    //           )..fetchUsers(),
+    //       child: const ViewAllUserScreen(),
+    //     );
+    //   },
+    // ),
   ],
   errorBuilder:
       (context, state) => Scaffold(

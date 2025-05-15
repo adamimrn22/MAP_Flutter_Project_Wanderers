@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/routing/routes.dart';
-import 'package:mycrochetbag/data/services/auth_services.dart';
-import 'package:mycrochetbag/ui/core/themes/themes.dart'; // import AuthServices
+import 'package:mycrochetbag/data/services/auth_services.dart'; // import AuthServices
+import 'package:mycrochetbag/ui/core/themes/themes.dart';
 
 class CustomerProfileScreen extends StatelessWidget {
   const CustomerProfileScreen({Key? key}) : super(key: key);

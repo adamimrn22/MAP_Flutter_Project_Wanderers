@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/routing/routes.dart';
-import 'package:mycrochetbag/data/services/auth_services.dart'; // import AuthServices
+import 'package:mycrochetbag/data/services/auth_services.dart';
+import 'package:mycrochetbag/ui/core/themes/themes.dart'; // import AuthServices
 
 class CustomerProfileScreen extends StatelessWidget {
   const CustomerProfileScreen({Key? key}) : super(key: key);
@@ -26,7 +27,7 @@ class CustomerProfileScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: RoseBlushColors.background,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: SingleChildScrollView(

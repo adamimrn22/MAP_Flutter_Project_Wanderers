@@ -96,4 +96,27 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
     }
     return null;
   }
+
+  //Get Current User Email
+  String? get currentUserEmail {
+    return _auth.currentUser?.email;
+  }
+
+  //Get Current User Name from Firestore
+  Future<String?> getCurrentUserName() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      try {
+        DocumentSnapshot userDoc =
+            await _firestore.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          return userDoc.get('name'); // Make sure 'name' is the correct field
+        }
+      } catch (e) {
+        print("Error fetching username: $e");
+        return null;
+      }
+    }
+    return null;
+  }
 }

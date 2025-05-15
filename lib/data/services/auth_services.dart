@@ -110,7 +110,15 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
         DocumentSnapshot userDoc =
             await _firestore.collection('users').doc(user.uid).get();
         if (userDoc.exists) {
-          return userDoc.get('name'); // Make sure 'name' is the correct field
+          final firstName = userDoc.get('firstName') as String?;
+          final lastName = userDoc.get('lastName') as String?;
+          if (firstName != null && lastName != null) {
+            return '$firstName $lastName';
+          } else if (firstName != null) {
+            return firstName;
+          } else if (lastName != null) {
+            return lastName;
+          }
         }
       } catch (e) {
         print("Error fetching username: $e");

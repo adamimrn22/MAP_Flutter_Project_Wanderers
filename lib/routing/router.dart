@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/data/repositories/auth/firestore_user_repository_impl.dart';
 import 'package:flutter/material.dart';
+import 'package:mycrochetbag/ui/authentication/forgot_password/widgets/reset_password_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_profile/seller_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mycrochetbag/data/services/auth_service.dart';

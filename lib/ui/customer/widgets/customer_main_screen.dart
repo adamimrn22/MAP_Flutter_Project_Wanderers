@@ -1,16 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; //  Provider
+import 'package:flutter/material.dart'; //  Provider
 import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/homepage_screen.dart';
 import 'package:mycrochetbag/ui/customer/widgets/customer_bottom_navigation_bar_widget.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart'; // Import CustomerProfileScreen
-import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart'; // Import SignoutViewModel
-import 'package:mycrochetbag/ui/customer/customer_profile/view_model/customer_profile_viewmodel.dart'; // 确保导入了 CustomerProfileViewModel
-import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart'; // Import CustomerProfileScreen
-import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodeL.dart'; // Import SignoutViewModel
+import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/view_model/customer_profile_viewmodel.dart'; // 确保导入了 CustomerProfileViewModel
 
 class CustomerMainScreen extends StatefulWidget {
-  const CustomerMainScreen({Key? key}) : super(key: key);
+  const CustomerMainScreen({super.key});
 
   @override
   _CustomerMainScreenState createState() => _CustomerMainScreenState();

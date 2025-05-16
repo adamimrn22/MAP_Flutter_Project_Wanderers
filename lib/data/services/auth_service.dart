@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -67,6 +66,7 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
     }
   }
 
+  @override
   Future<Result<void>> signOut() async {
     try {
       await _auth.signOut();
@@ -81,6 +81,7 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
     return FirebaseAuth.instance.authStateChanges().map((user) => user != null);
   }
 
+  @override
   Future<String?> getUserRole() async {
     final user = currentUser;
     if (user != null) {
@@ -108,6 +109,7 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
     }
   }
 
+  @override
   Future<Result<String>> verifyPasswordResetCode({
     required String oobCode,
   }) async {
@@ -123,6 +125,7 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
     }
   }
 
+  @override
   Future<Result<void>> confirmPasswordReset({
     required String oobCode,
     required String newPassword,
@@ -132,6 +135,48 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
       return Result.ok(null);
     } on FirebaseAuthException catch (e) {
       return Result.error(Exception(e.message ?? 'Failed to reset password'));
+    } catch (e) {
+      return Result.error(Exception(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        return Result.error(Exception('No user is currently signed in'));
+      }
+
+      // Reauthenticate the user with their old password
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: oldPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      // Update the password
+      await user.updatePassword(newPassword);
+      return Result.ok(null);
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      switch (e.code) {
+        case 'wrong-password':
+          errorMessage = 'Incorrect old password';
+          break;
+        case 'weak-password':
+          errorMessage = 'New password is too weak';
+          break;
+        case 'requires-recent-login':
+          errorMessage = 'Please sign in again to change your password';
+          break;
+        default:
+          errorMessage = e.message ?? 'Failed to change password';
+      }
+      return Result.error(Exception(errorMessage));
     } catch (e) {
       return Result.error(Exception(e.toString()));
     }

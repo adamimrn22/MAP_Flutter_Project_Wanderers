@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/routing/routes.dart';
 import 'package:mycrochetbag/ui/admin/widgets/admin_bottom_navigation_bar_widget.dart';
+import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart';
 
 class AdminMainScreen extends StatefulWidget {
   final Widget child;
@@ -38,9 +39,9 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         context.go(Routes.viewAllUser);
         break;
       case 2:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Profile")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Profile")));
         break;
     }
   }

@@ -16,7 +16,7 @@ import 'package:mycrochetbag/ui/authentication/signup/view_model/signup_viewmode
 import 'package:mycrochetbag/ui/authentication/signup/widgets/signup_screen.dart';
 import 'package:mycrochetbag/ui/customer/widgets/customer_main_screen.dart';
 import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
-import 'package:mycrochetbag/ui/authentication/forgot_password/widgets/reset_password_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart';
 
 GoRouter router(AuthServices authServices) => GoRouter(
@@ -122,6 +122,17 @@ GoRouter router(AuthServices authServices) => GoRouter(
     //     );
     //   },
     // ),
+    GoRoute(
+      path: Routes.customerHome,
+      builder: (context, state) => const CustomerMainScreen(),
+      routes: [
+        GoRoute(
+          //  Nest the profile route under customerHome
+          path: 'profile', //  relative path
+          builder: (context, state) => const CustomerProfileScreen(),
+        ),
+      ],
+    ),
   ],
   errorBuilder:
       (context, state) => Scaffold(

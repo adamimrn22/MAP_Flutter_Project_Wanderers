@@ -12,19 +12,6 @@ class CustomerHomepageScreen extends StatefulWidget {
 class _CustomerHomepageScreenState extends State<CustomerHomepageScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Customer Homepage'),
-            ElevatedButton(
-              onPressed: () => widget.viewModel.signout(),
-              child: const Text('Sign Out'),
-            ),
-          ],
-        ),
-      ),
-    );
+    return Scaffold(body: Center());
   }
 }

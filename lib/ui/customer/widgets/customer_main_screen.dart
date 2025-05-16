@@ -5,6 +5,9 @@ import 'package:mycrochetbag/ui/customer/widgets/customer_bottom_navigation_bar_
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart'; // Import CustomerProfileScreen
 import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart'; // Import SignoutViewModel
 import 'package:mycrochetbag/ui/customer/customer_profile/view_model/customer_profile_viewmodel.dart'; // 确保导入了 CustomerProfileViewModel
+import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart'; // Import CustomerProfileScreen
+import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodeL.dart'; // Import SignoutViewModel
+import 'package:mycrochetbag/ui/customer/customer_profile/view_model/customer_profile_viewmodel.dart'; // 确保导入了 CustomerProfileViewModel
 
 class CustomerMainScreen extends StatefulWidget {
   const CustomerMainScreen({Key? key}) : super(key: key);

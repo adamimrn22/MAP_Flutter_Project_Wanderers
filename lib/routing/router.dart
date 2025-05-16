@@ -17,8 +17,6 @@ import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
 import 'package:mycrochetbag/ui/authentication/forgot_password/widgets/reset_password_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../domain/model/User.dart';
-
 // Main router setup
 GoRouter router(AuthServices authServices) => GoRouter(
   initialLocation: Routes.viewAllUser,
@@ -91,20 +89,6 @@ GoRouter router(AuthServices authServices) => GoRouter(
                       userRepository: FirestoreUserRepository(),
                     ),
                   )..fetchUserById(userId),
-              child: UserDetailsScreen(userId: userId),
-            );
-          },
-        ),
-        GoRoute(
-          path: Routes.addUser,
-          builder: (context, state) { 
-            return ChangeNotifierProvider(
-              create:
-                  (_) => UserViewModel(
-                    userService: ManageUserService(
-                      userRepository: FirestoreUserRepository(),
-                    ),
-                  )..createUser() ,
               child: UserDetailsScreen(userId: userId),
             );
           },

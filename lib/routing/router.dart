@@ -3,11 +3,9 @@ import 'package:mycrochetbag/data/repositories/auth/firestore_user_repository_im
 import 'package:flutter/material.dart';
 import 'package:mycrochetbag/ui/seller/seller_profile/seller_profile_screen.dart';
 import 'package:provider/provider.dart';
-
 import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/data/services/manage_user_service.dart';
 import 'package:mycrochetbag/routing/routes.dart';
-import 'package:flutter/material.dart';
 import 'package:mycrochetbag/ui/admin/admin_homepage/widgets/homepage_screen.dart';
 import 'package:mycrochetbag/ui/admin/user/view_model/user_viewmodel.dart';
 import 'package:mycrochetbag/ui/admin/user/widget/user_detail_screen.dart';

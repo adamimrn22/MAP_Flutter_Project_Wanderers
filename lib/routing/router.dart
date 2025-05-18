@@ -10,6 +10,7 @@ import 'package:mycrochetbag/ui/customer/widgets/customer_main_screen.dart';
 import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart';
+import 'package:mycrochetbag/ui/admin/admin_profile_screen.dart';
 
 // Main router setup
 GoRouter router(AuthServices authServices) => GoRouter(
@@ -31,15 +32,16 @@ GoRouter router(AuthServices authServices) => GoRouter(
     GoRoute(
       path: Routes.adminHome,
       builder: (context, state) => const AdminMainScreen(),
+      routes: [
+        GoRoute(
+          path: 'profile', // /admin/profile
+          builder:
+              (context, state) =>
+                  const AdminProfileScreen(), // Your admin profile screen
+        ),
+      ],
     ),
-    GoRoute(
-      path: Routes.customerHome,
-      builder: (context, state) => const CustomerMainScreen(),
-    ),
-    GoRoute(
-      path: Routes.sellerHome,
-      builder: (context, state) => const SellerMainScreen(),
-    ),
+
     GoRoute(
       path: Routes.customerHome,
       builder: (context, state) => const CustomerMainScreen(),
@@ -50,6 +52,10 @@ GoRouter router(AuthServices authServices) => GoRouter(
           builder: (context, state) => const CustomerProfileScreen(),
         ),
       ],
+    ),
+    GoRoute(
+      path: Routes.sellerHome,
+      builder: (context, state) => const SellerMainScreen(),
     ),
   ],
   errorBuilder:
@@ -87,10 +93,37 @@ buildRedirect(AuthServices authServices) {
         // Get the home route for current user role
         final homeRoute = _getHomeRouteForRole(role);
 
+        // Define the expected profile route based on role
+        String expectedProfileRoute;
+        if (role == 'admin') {
+          expectedProfileRoute = Routes.adminProfile;
+        } else if (role == 'customer') {
+          expectedProfileRoute = Routes.customerProfile;
+        } else {
+          expectedProfileRoute = homeRoute; // Fallback or handle other roles
+        }
+
         // If on auth route (login, signup), redirect to user role home route
         if (isAuthPage) {
           return homeRoute;
         }
+
+        // --- NEW LOGIC FOR PROFILE PAGES ---
+        // If the user is at a profile page, check if it's the correct one for their role
+        final currentPath = state.matchedLocation;
+
+        if (currentPath.startsWith('/admin/profile') && role != 'admin') {
+          return expectedProfileRoute; // Admin trying to access wrong profile
+        }
+        if (currentPath.startsWith('/customer/profile') && role != 'customer') {
+          return expectedProfileRoute; // Customer trying to access wrong profile
+        }
+        // --- END NEW LOGIC ---
+
+        // // Check if user is trying to access a main route not meant for their role
+        // final isAccessingAdminMain = currentPath.startsWith(Routes.adminHome) && currentPath != Routes.adminProfile;
+        // final isAccessingCustomerMain = currentPath.startsWith(Routes.customerHome) && currentPath != Routes.customerProfile;
+        // final isAccessingSellerMain = currentPath.startsWith(Routes.sellerHome);
 
         // Check if user is trying to access a route not meant for their role
         final isAccessingAdminRoute = state.matchedLocation.startsWith(

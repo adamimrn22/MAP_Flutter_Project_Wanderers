@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mycrochetbag/ui/admin/admin_homepage/widgets/homepage_screen.dart';
 import 'package:mycrochetbag/ui/admin/widgets/admin_bottom_navigation_bar_widget.dart';
 import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodeL.dart';
+import 'package:mycrochetbag/ui/admin/admin_profile_screen.dart';
 
 class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({super.key});
@@ -21,7 +22,11 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     super.initState();
 
     // ADD SCREEN HEREEEE
-    _screens = [AdminHomepageScreen(viewModel: viewModel)];
+    _screens = [
+      AdminHomepageScreen(viewModel: viewModel),
+      const Center(child: Text('Admin Users Management Page')),
+      const AdminProfileScreen(), // <--  AdminProfileScreen
+    ];
   }
 
   void _onItemTapped(int index) {

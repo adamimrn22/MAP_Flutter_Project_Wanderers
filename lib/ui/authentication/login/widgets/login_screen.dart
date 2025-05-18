@@ -31,7 +31,7 @@ class _LoginScreenContentState extends State<_LoginScreenContent> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<LoginViewModel>(context);
+    final viewModel = context.watch<LoginViewModel>();
 
     return Scaffold(
       body: SafeArea(
@@ -260,6 +260,7 @@ class _LoginScreenContentState extends State<_LoginScreenContent> {
                     final result = await viewModel.login();
                     if (result.isOk) {
                       if (mounted) {
+                        context.go('/');
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text("Logged in successfully!"),

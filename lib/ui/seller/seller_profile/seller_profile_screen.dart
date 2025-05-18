@@ -170,6 +170,12 @@ class SellerProfileScreen extends StatelessWidget {
             final result = await authService.signOut();
             if (result.isOk) {
               if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Logged out successfully!"),
+                    backgroundColor: Colors.green,
+                  ),
+                );
                 context.push(Routes.login);
               }
             } else {

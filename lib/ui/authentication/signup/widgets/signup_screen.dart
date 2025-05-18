@@ -134,7 +134,7 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
         prefixIcon: Icon(Icons.mail),
         hintText: "Email Address",
         filled: true,
-        fillColor: Colors.grey.shade100,
+        fillColor: Colors.grey.shade50,
       ),
 
       validator: viewModel.validateEmail,
@@ -155,7 +155,7 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
           onPressed: viewModel.togglePasswordVisibility,
         ),
         filled: true,
-        fillColor: Colors.grey.shade100,
+        fillColor: Colors.grey.shade50,
       ),
       validator: viewModel.validatePassword,
     );
@@ -177,7 +177,7 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
           onPressed: viewModel.toggleConfirmPasswordVisibility,
         ),
         filled: true,
-        fillColor: Colors.grey.shade100,
+        fillColor: Colors.grey.shade50,
       ),
       validator: viewModel.validateConfirmPassword,
     );

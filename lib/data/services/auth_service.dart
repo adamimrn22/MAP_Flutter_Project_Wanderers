@@ -25,6 +25,7 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
   }) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+      notifyListeners();
       return Result.ok(null);
     } on FirebaseAuthException catch (e) {
       print('FirebaseAuthException: ${e.code} - ${e.message}');

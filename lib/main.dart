@@ -5,8 +5,7 @@ import 'package:mycrochetbag/ui/core/themes/themes.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:mycrochetbag/data/services/auth_service.dart';
-import 'package:mycrochetbag/routing/router.dart';
-import 'package:mycrochetbag/ui/authentication/change_password/view_model/change_password_view_model.dart'; // Import CustomerProfileViewModel
+import 'package:mycrochetbag/routing/router.dart'; // Import CustomerProfileViewModel
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,10 +21,7 @@ Future<void> main() async {
     MultiProvider(
       // Use MultiProvider
       providers: [
-        ChangeNotifierProvider<AuthServices>.value(
-          // Changed to ChangeNotifierProvider
-          value: authServices,
-        ),
+        ChangeNotifierProvider(create: (_) => AuthServices()),
 
         // Add other Providers as needed
       ],
@@ -42,9 +38,9 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      routerConfig: router(authServices),
       title: 'My Crochet Bag',
       theme: roseBlushTheme,
-      routerConfig: router(authServices),
     );
   }
 }

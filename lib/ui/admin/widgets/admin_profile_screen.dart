@@ -166,6 +166,12 @@ class AdminProfileScreen extends StatelessWidget {
             if (result.isOk) {
               if (context.mounted) {
                 context.go(Routes.login);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Logged out successfully!"),
+                    backgroundColor: Colors.green,
+                  ),
+                );
               }
             } else {
               if (context.mounted) {

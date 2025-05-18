@@ -82,7 +82,7 @@ class UserDetailsScreen extends StatelessWidget {
                       ),
                       _buildInfoRow(Icons.email, 'Email', user.email),
                       if (user.phoneNumber.isNotEmpty)
-                        _buildInfoRow(Icons.phone, 'Phone', user.phoneNumber!),
+                        _buildInfoRow(Icons.phone, 'Phone', user.phoneNumber),
                       _buildInfoRow(
                         TablerIcons.license,
                         'Role',

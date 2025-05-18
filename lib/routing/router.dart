@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/data/repositories/auth/firestore_user_repository_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:mycrochetbag/ui/authentication/forgot_password/widgets/reset_password_screen.dart';
-import 'package:mycrochetbag/ui/authentication/change_password/widget/change_password.dart';
+import 'package:mycrochetbag/ui/authentication/change_password/widget/change_password_screen.dart';
 import 'package:mycrochetbag/ui/authentication/login/view_model/login_viewmodel.dart';
 import 'package:mycrochetbag/ui/customer/customer_cart/widget/customer_cart_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_order_screen.dart';
@@ -29,14 +29,24 @@ import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart';
 import 'package:mycrochetbag/ui/admin/widgets/admin_profile_screen.dart';
 
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
 GoRouter router(AuthServices authServices) => GoRouter(
+  navigatorKey: _rootNavigatorKey,
+  redirect: buildRedirect(authServices),
   initialLocation: Routes.login,
   debugLogDiagnostics: true,
-  redirect: buildRedirect(authServices),
   refreshListenable: authServices,
   routes: [
+    GoRoute(path: '/', name: '/', redirect: (context, state) => Routes.login),
     GoRoute(
       path: Routes.login,
+      builder:
+          (context, state) =>
+              LoginScreen(viewModel: LoginViewModel(context.read())),
+    ),
+    GoRoute(
+      path: Routes.home,
       builder:
           (context, state) =>
               LoginScreen(viewModel: LoginViewModel(context.read())),
@@ -166,7 +176,11 @@ GoRouter router(AuthServices authServices) => GoRouter(
   ],
   errorBuilder:
       (context, state) => Scaffold(
-        body: Center(child: Text('Error: Route not found - ${state.uri}')),
+        body: Center(
+          child: Text(
+            'Error: Route not found\nUri: ${state.uri}\nMatched: ${state.matchedLocation}',
+          ),
+        ),
       ),
 );
 

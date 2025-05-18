@@ -89,7 +89,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          context.go(Routes.login);
+          context.push(Routes.login);
         }
       } else {
         setState(() {

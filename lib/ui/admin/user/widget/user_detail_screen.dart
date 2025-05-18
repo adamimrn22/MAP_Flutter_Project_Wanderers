@@ -19,7 +19,7 @@ class UserDetailsScreen extends StatelessWidget {
         title: const Text('User Details'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(Routes.viewAllUser),
+          onPressed: () => context.push(Routes.viewAllUser),
         ),
       ),
       body: AnimatedBuilder(

@@ -156,7 +156,7 @@ class CustomerProfileScreen extends StatelessWidget {
             final result = await authService.signOut();
             if (result.isOk) {
               if (context.mounted) {
-                context.go(Routes.login);
+                context.push(Routes.login);
               }
             } else {
               if (context.mounted) {

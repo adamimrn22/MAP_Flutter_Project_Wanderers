@@ -134,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () async {
                     final result = await widget.viewModel.signout();
                     if (result.isOk && context.mounted) {
-                      context.go(Routes.login);
+                      context.push(Routes.login);
                     } else if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(

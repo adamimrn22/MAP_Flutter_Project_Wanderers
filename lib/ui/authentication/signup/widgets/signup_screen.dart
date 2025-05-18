@@ -238,7 +238,7 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
                             backgroundColor: Colors.green,
                           ),
                         );
-                        context.go(Routes.login);
+                        context.push(Routes.login);
                       }
                     }
                   }
@@ -251,7 +251,7 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
   Widget _buildSignInLink(BuildContext context) {
     return Center(
       child: TextButton(
-        onPressed: () => context.go(Routes.login),
+        onPressed: () => context.push(Routes.login),
         child: Text(
           "Already have an account? Sign In Here",
           style: Theme.of(context).textTheme.bodySmall?.copyWith(

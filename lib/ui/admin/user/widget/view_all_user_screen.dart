@@ -31,7 +31,6 @@ class ViewAllUserScreen extends StatelessWidget {
           IconButton(
             icon: Icon(TablerIcons.circle_plus),
             onPressed: () {
-              // Add your onPressed functionality here
               print('Add button pressed');
             },
           ),
@@ -64,8 +63,7 @@ class ViewAllUserScreen extends StatelessWidget {
                       subtitle: Text(user.email),
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
-                        // Navigate using GoRouter
-                        context.go('${Routes.viewAllUser}/${user.id}');
+                        context.push('${Routes.viewAllUser}/${user.id}');
                       },
                     ),
                   );

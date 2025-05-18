@@ -230,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         const Text("Don't have an account yet? "),
                         GestureDetector(
-                          onTap: () => context.go(Routes.signUp),
+                          onTap: () => context.push(Routes.signUp),
                           child: const Text(
                             "Create one",
                             style: TextStyle(

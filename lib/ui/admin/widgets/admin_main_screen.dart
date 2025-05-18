@@ -33,10 +33,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   void _onItemTapped(int index) {
     switch (index) {
       case 0:
-        context.go(Routes.adminHome);
+        context.push(Routes.adminHome);
         break;
       case 1:
-        context.go(Routes.viewAllUser);
+        context.push(Routes.viewAllUser);
         break;
       case 2:
         ScaffoldMessenger.of(

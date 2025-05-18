@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/routing/routes.dart';
 import 'package:mycrochetbag/ui/admin/widgets/admin_bottom_navigation_bar_widget.dart';
-import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart';
+import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodeL.dart';
+import 'package:mycrochetbag/ui/admin/admin_profile_screen.dart';
 
 class AdminMainScreen extends StatefulWidget {
   final Widget child;

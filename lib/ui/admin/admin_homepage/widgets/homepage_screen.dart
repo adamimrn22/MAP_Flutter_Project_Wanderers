@@ -15,13 +15,7 @@ class _AdminHomepageScreenState extends State<AdminHomepageScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Admin Dashboard'),
-            ElevatedButton(
-              onPressed: () => viewModel.signout(),
-              child: const Text('Sign Out'),
-            ),
-          ],
+          children: [const Text('Admin Dashboard')],
         ),
       ),
     );

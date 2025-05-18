@@ -19,6 +19,7 @@ import 'package:mycrochetbag/ui/customer/widgets/customer_main_screen.dart';
 import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart';
+import 'package:mycrochetbag/ui/admin/admin_profile_screen.dart';
 
 GoRouter router(AuthServices authServices) => GoRouter(
   initialLocation: Routes.viewAllUser,
@@ -36,6 +37,19 @@ GoRouter router(AuthServices authServices) => GoRouter(
           (context, state) =>
               SignUpScreen(viewModel: SignUpViewmodel(context.read())),
     ),
+    GoRoute(
+      path: Routes.adminHome,
+      builder: (context, state) => const AdminMainScreen(),
+      routes: [
+        GoRoute(
+          path: 'profile', // /admin/profile
+          builder:
+              (context, state) =>
+                  const AdminProfileScreen(), // Your admin profile screen
+        ),
+      ],
+    ),
+
     // GoRoute(
     //   path: Routes.adminHome,
     //   builder: (context, state) => const AdminMainScreen(),
@@ -133,6 +147,10 @@ GoRouter router(AuthServices authServices) => GoRouter(
           builder: (context, state) => const CustomerProfileScreen(),
         ),
       ],
+    ),
+    GoRoute(
+      path: Routes.sellerHome,
+      builder: (context, state) => const SellerMainScreen(),
     ),
   ],
   errorBuilder:

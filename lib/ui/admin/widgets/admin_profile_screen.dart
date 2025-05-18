@@ -1,14 +1,15 @@
 // lib/ui/admin/admin_profile_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:mycrochetbag/utils/get_name_initials.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/routing/routes.dart';
-import 'package:mycrochetbag/data/services/auth_services.dart';
+import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/ui/core/themes/themes.dart';
 
 class AdminProfileScreen extends StatelessWidget {
-  const AdminProfileScreen({Key? key}) : super(key: key);
+  const AdminProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +20,9 @@ class AdminProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ADMIN PROFILE'), // Title for admin profile
+        title: const Text('PROFILE'), // Title for admin profile
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF8E4A58),
         elevation: 0,
       ),
       backgroundColor: RoseBlushColors.background,
@@ -41,12 +42,44 @@ class AdminProfileScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 40,
-                      backgroundImage: NetworkImage(
-                        'https://via.placeholder.com/80',
+                      backgroundColor: Theme.of(context).primaryColor,
+                      child: FutureBuilder<String?>(
+                        future: authService.getCurrentUserName(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            );
+                          } else if (snapshot.hasError ||
+                              !snapshot.hasData ||
+                              snapshot.data == null) {
+                            return const Text(
+                              '?',
+                              style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                              ),
+                            );
+                          } else {
+                            final initials = GetNameInitials.getInitials(
+                              snapshot.data!,
+                            );
+                            return Text(
+                              initials,
+                              style: const TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ),
+
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
@@ -105,32 +138,18 @@ class AdminProfileScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    OutlinedButton(
-                      onPressed: () {
-                        // TODO: Implement edit profile functionality for Admin
-                      },
-                      child: const Text(
-                        'Edit Admin Profile',
-                      ), // Specific text for admin
-                    ),
                   ],
                 ),
                 const SizedBox(height: 30),
                 // Admin-specific options
-                _buildOptionTile(context, 'User Management', () {
-                  // TODO: Navigate to admin user management
-                }),
-                _buildOptionTile(context, 'Order Management', () {
-                  // TODO: Navigate to admin order management
-                }),
-                _buildOptionTile(context, 'Product Inventory', () {
-                  // TODO: Navigate to admin product inventory
-                }),
-                _buildOptionTile(context, 'Analytics & Reports', () {
-                  // TODO: Navigate to admin analytics
-                }),
-                _buildOptionTile(context, 'System Settings', () {
-                  // TODO: Navigate to admin system settings
+                _buildOptionTile(
+                  context,
+                  'Language',
+                  () {},
+                  trailing: const Text('English (UK)'),
+                ),
+                _buildOptionTile(context, 'Change Password', () {
+                  context.push(Routes.changePassword);
                 }),
                 // Add more admin-specific tiles as needed
                 const SizedBox(height: 80),

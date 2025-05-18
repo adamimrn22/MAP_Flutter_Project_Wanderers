@@ -18,7 +18,6 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
       notifyListeners();
     });
   }
-
   @override
   Future<Result<void>> login({
     required String email,
@@ -27,8 +26,12 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       return Result.ok(null);
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException: ${e.code} - ${e.message}');
+      return Result.error(e);
     } catch (e) {
-      return Result.error(Exception(e.toString()));
+      print('Unexpected error: $e');
+      return Result.error(Exception('An unknown error occurred.'));
     }
   }
 

@@ -1,16 +1,21 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mycrochetbag/ui/core/themes/themes.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/routing/router.dart';
-import 'package:mycrochetbag/ui/customer/customer_profile/view_model/customer_profile_viewmodel.dart'; // Import CustomerProfileViewModel
+import 'package:mycrochetbag/ui/authentication/change_password/view_model/change_password_view_model.dart'; // Import CustomerProfileViewModel
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF8E4A58), // Ba  For iOS
+    ),
+  );
   final authServices = AuthServices();
 
   runApp(
@@ -21,10 +26,7 @@ Future<void> main() async {
           // Changed to ChangeNotifierProvider
           value: authServices,
         ),
-        ChangeNotifierProvider<CustomerProfileViewModel>(
-          // Add this Provider
-          create: (_) => CustomerProfileViewModel(),
-        ),
+
         // Add other Providers as needed
       ],
       child: MainApp(authServices: authServices),

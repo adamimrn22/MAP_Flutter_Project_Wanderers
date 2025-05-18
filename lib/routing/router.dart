@@ -2,6 +2,15 @@ import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/data/repositories/auth/firestore_user_repository_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:mycrochetbag/ui/authentication/forgot_password/widgets/reset_password_screen.dart';
+import 'package:mycrochetbag/ui/authentication/change_password/widget/change_password.dart';
+import 'package:mycrochetbag/ui/authentication/login/view_model/login_viewmodel.dart';
+import 'package:mycrochetbag/ui/customer/customer_cart/widget/customer_cart_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_order_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_order/widgets/customer_order_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_order/widget/seller_order_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_product/widget/seller_product_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_profile/seller_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mycrochetbag/data/services/auth_service.dart';
@@ -17,19 +26,20 @@ import 'package:mycrochetbag/ui/authentication/signup/view_model/signup_viewmode
 import 'package:mycrochetbag/ui/authentication/signup/widgets/signup_screen.dart';
 import 'package:mycrochetbag/ui/customer/widgets/customer_main_screen.dart';
 import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
-import 'package:provider/provider.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart';
-import 'package:mycrochetbag/ui/admin/admin_profile_screen.dart';
+import 'package:mycrochetbag/ui/admin/widgets/admin_profile_screen.dart';
 
 GoRouter router(AuthServices authServices) => GoRouter(
-  initialLocation: Routes.viewAllUser,
+  initialLocation: Routes.login,
   debugLogDiagnostics: true,
   redirect: buildRedirect(authServices),
   refreshListenable: authServices,
   routes: [
     GoRoute(
       path: Routes.login,
-      builder: (context, state) => const LoginScreen(),
+      builder:
+          (context, state) =>
+              LoginScreen(viewModel: LoginViewModel(context.read())),
     ),
     GoRoute(
       path: Routes.signUp,
@@ -38,41 +48,8 @@ GoRouter router(AuthServices authServices) => GoRouter(
               SignUpScreen(viewModel: SignUpViewmodel(context.read())),
     ),
     GoRoute(
-      path: Routes.adminHome,
-      builder: (context, state) => const AdminMainScreen(),
-      routes: [
-        GoRoute(
-          path: 'profile', // /admin/profile
-          builder:
-              (context, state) =>
-                  const AdminProfileScreen(), // Your admin profile screen
-        ),
-      ],
-    ),
-
-    // GoRoute(
-    //   path: Routes.adminHome,
-    //   builder: (context, state) => const AdminMainScreen(),
-    // ),
-    GoRoute(
-      path: Routes.customerHome,
-      builder: (context, state) => const CustomerMainScreen(),
-      routes: [
-        GoRoute(
-          path: 'profile',
-          builder: (context, state) => const CustomerProfileScreen(),
-        ),
-      ],
-    ),
-    GoRoute(
-      path: Routes.sellerHome,
-      builder: (context, state) => const SellerMainScreen(),
-      routes: [
-        GoRoute(
-          path: 'profile',
-          builder: (context, state) => const SellerProfileScreen(),
-        ),
-      ],
+      path: Routes.changePassword,
+      builder: (context, state) => ChangePasswordScreen(),
     ),
     GoRoute(
       path: Routes.resetPassword,
@@ -81,6 +58,37 @@ GoRouter router(AuthServices authServices) => GoRouter(
         return ResetPasswordScreen(oobCode: oobCode);
       },
     ),
+
+    /// Customer Route
+    ShellRoute(
+      builder: (context, state, child) {
+        return CustomerMainScreen(child: child); // shared layout
+      },
+      routes: [
+        GoRoute(
+          path: Routes.customerHome,
+          builder: (context, state) => const CustomerHomepageScreen(),
+        ),
+        GoRoute(
+          path: Routes.customerCustomOrder,
+          builder: (context, state) => const CustomerCustomOrderScreen(),
+        ),
+        GoRoute(
+          path: Routes.customerCart,
+          builder: (context, state) => const CustomerCartScreen(),
+        ),
+        GoRoute(
+          path: Routes.customerOrders,
+          builder: (context, state) => const CustomerOrderScreen(),
+        ),
+        GoRoute(
+          path: Routes.customerProfile,
+          builder: (context, state) => const CustomerProfileScreen(),
+        ),
+      ],
+    ),
+
+    /// Admin Route
     ShellRoute(
       builder: (context, state, child) {
         return AdminMainScreen(child: child); // shared layout
@@ -108,7 +116,6 @@ GoRouter router(AuthServices authServices) => GoRouter(
           path: Routes.userDetails,
           builder: (context, state) {
             final userId = state.pathParameters['userId'] ?? '';
-
             // Use the same ViewModel provider from the parent route
             return ChangeNotifierProvider(
               create:
@@ -121,37 +128,41 @@ GoRouter router(AuthServices authServices) => GoRouter(
             );
           },
         ),
-      ],
-    ),
-    // GoRoute(
-    //   path: Routes.viewAllUser,
-    //   builder: (context, state) {
-    //     return ChangeNotifierProvider(
-    //       create:
-    //           (_) => UserViewModel(
-    //             userService: ManageUserService(
-    //               userRepository: FirestoreUserRepository(),
-    //             ),
-    //           )..fetchUsers(),
-    //       child: const ViewAllUserScreen(),
-    //     );
-    //   },
-    // ),
-    GoRoute(
-      path: Routes.customerHome,
-      builder: (context, state) => const CustomerMainScreen(),
-      routes: [
         GoRoute(
-          //  Nest the profile route under customerHome
-          path: 'profile', //  relative path
-          builder: (context, state) => const CustomerProfileScreen(),
+          path: Routes.adminProfile, // /admin/profile
+          builder: (context, state) => const AdminProfileScreen(),
         ),
       ],
     ),
-    GoRoute(
-      path: Routes.sellerHome,
-      builder: (context, state) => const SellerMainScreen(),
+
+    /// Seller Route
+    ShellRoute(
+      builder: (context, state, child) {
+        return SellerMainScreen(child: child); // shared layout
+      },
+      routes: [
+        GoRoute(
+          path: Routes.sellerHome, // /seller/home
+          builder: (context, state) => const SellerHomepageScreen(),
+        ),
+        GoRoute(
+          path: Routes.sellerProduct, // /seller/product
+          builder: (context, state) => const SellerProductScreen(),
+        ),
+        GoRoute(
+          path: Routes.sellerOrders, // /seller/order
+          builder: (context, state) => const SellerOrderScreen(),
+        ),
+        GoRoute(
+          path: Routes.sellerProfile, // /seller/profile
+          builder: (context, state) => const SellerProfileScreen(),
+        ),
+      ],
     ),
+    // GoRoute(
+    //   path: Routes.sellerHome,
+    //   builder: (context, state) => const SellerMainScreen(),
+    // ),
   ],
   errorBuilder:
       (context, state) => Scaffold(

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart';
 
 class SellerHomepageScreen extends StatefulWidget {
-  final SignoutViewmodel viewModel;
-  const SellerHomepageScreen({super.key, required this.viewModel});
+  const SellerHomepageScreen({super.key});
 
   @override
   State<SellerHomepageScreen> createState() => _SellerHomepageScreenState();
@@ -16,13 +14,7 @@ class _SellerHomepageScreenState extends State<SellerHomepageScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Seller Dashboard'),
-            ElevatedButton(
-              onPressed: () => widget.viewModel.signout(),
-              child: const Text('Sign Out'),
-            ),
-          ],
+          children: [const Text('Seller Dashboard')],
         ),
       ),
     );

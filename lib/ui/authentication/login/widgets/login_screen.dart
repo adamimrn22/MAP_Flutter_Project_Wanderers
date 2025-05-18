@@ -1,310 +1,311 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/routing/routes.dart';
+import 'package:mycrochetbag/ui/authentication/login/view_model/login_viewmodel.dart';
 import 'package:provider/provider.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key, required this.viewModel});
 
-  @override
-  _LoginScreenState createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _resetEmailController = TextEditingController();
-  String? _errorMessage;
-  String? _resetSuccessMessage;
-  bool _isLoading = false;
-  bool _showResetForm = false;
-  bool _obscurePassword = true;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _resetEmailController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _signIn() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _resetSuccessMessage = null;
-    });
-
-    try {
-      final authService = context.read<AuthServices>();
-      final result = await authService.login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-
-      if (result.isError) {
-        setState(() {
-          _errorMessage = _parseErrorMessage(result.asError.error.toString());
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _sendPasswordResetEmail() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _resetSuccessMessage = null;
-    });
-
-    try {
-      final authService = context.read<AuthServices>();
-      final result = await authService.sendPasswordResetEmail(
-        email: _resetEmailController.text.trim(),
-      );
-
-      if (result.isOk) {
-        setState(() {
-          _resetSuccessMessage = 'Password reset email sent. Check your inbox.';
-          _showResetForm = false;
-          _resetEmailController.clear();
-        });
-      } else {
-        setState(() {
-          _errorMessage = _parseErrorMessage(result.asError.error.toString());
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  String _parseErrorMessage(String error) {
-    if (error.contains('user-not-found')) {
-      return 'No user found with this email.';
-    } else if (error.contains('invalid-email')) {
-      return 'Invalid email format.';
-    } else if (error.contains('wrong-password')) {
-      return 'Incorrect password.';
-    } else {
-      return 'An error occurred. Please try again.';
-    }
-  }
-
-  void _toggleResetForm() {
-    setState(() {
-      _showResetForm = !_showResetForm;
-      _errorMessage = null;
-      _resetSuccessMessage = null;
-      _resetEmailController.clear();
-    });
-  }
+  final LoginViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    return ChangeNotifierProvider.value(
+      value: viewModel,
+      child: const _LoginScreenContent(),
+    );
+  }
+}
+
+class _LoginScreenContent extends StatefulWidget {
+  const _LoginScreenContent();
+
+  @override
+  State<_LoginScreenContent> createState() => _LoginScreenContentState();
+}
+
+class _LoginScreenContentState extends State<_LoginScreenContent> {
+  final _formKey = GlobalKey<FormState>();
+  final _resetFormKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = Provider.of<LoginViewModel>(context);
 
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 40.0,
-            ),
+            padding: const EdgeInsets.all(15),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _showResetForm ? "Reset Password" : "Login Account",
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _showResetForm
-                        ? "Enter your email to receive a password reset link"
-                        : "Please login with registered account",
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 32),
-
-                  if (!_showResetForm) ...[
-                    TextField(
-                      controller: _emailController,
-                      enabled: !_isLoading,
-                      decoration: InputDecoration(
-                        hintText: "Enter your email",
-                        prefixIcon: const Icon(Icons.person_outline),
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      enabled: !_isLoading,
-                      decoration: InputDecoration(
-                        hintText: "Enter your password",
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: _isLoading ? null : _toggleResetForm,
-                        child: const Text("Forgot Password?"),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: _signIn,
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            child: const Text(
-                              "Sign In",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Don't have an account yet? "),
-                        GestureDetector(
-                          onTap: () => context.push(Routes.signUp),
-                          child: const Text(
-                            "Create one",
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 122, 53, 53),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ] else ...[
-                    TextField(
-                      controller: _resetEmailController,
-                      enabled: !_isLoading,
-                      decoration: InputDecoration(
-                        hintText: "Enter your email",
-                        prefixIcon: const Icon(Icons.email_outlined),
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: _sendPasswordResetEmail,
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                            child: const Text(
-                              "Send Reset Email",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
-                    const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: _isLoading ? null : _toggleResetForm,
-                      child: const Text("Back to Login"),
-                    ),
-                  ],
-
-                  if (_errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: Text(
-                        _errorMessage!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-
-                  if (_resetSuccessMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: Text(
-                        _resetSuccessMessage!,
-                        style: const TextStyle(color: Colors.green),
-                      ),
-                    ),
-                ],
-              ),
+              child:
+                  viewModel.showResetForm
+                      ? _buildResetForm(viewModel)
+                      : _buildLoginForm(viewModel),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginForm(LoginViewModel viewModel) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 30),
+          Text(
+            "Login Account",
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          Text(
+            "Please login with registered account",
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
+          ),
+          if (viewModel.hasError && viewModel.errorMessage != null) ...[
+            const SizedBox(height: 20),
+            _buildErrorMessage(viewModel),
+          ],
+          if (viewModel.resetSuccessMessage != null) ...[
+            const SizedBox(height: 20),
+            _buildSuccessMessage(viewModel),
+          ],
+          const SizedBox(height: 20),
+          _buildEmailField(viewModel),
+          const SizedBox(height: 15),
+          _buildPasswordField(viewModel),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: viewModel.isLoading ? null : viewModel.toggleResetForm,
+              child: const Text("Forgot Password?"),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildSignInButton(viewModel),
+          const SizedBox(height: 10),
+          _buildSignUpLink(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResetForm(LoginViewModel viewModel) {
+    return Form(
+      key: _resetFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 30),
+          Text(
+            "Reset Password",
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          Text(
+            "Enter your email to receive a password reset link",
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
+          ),
+          if (viewModel.hasError && viewModel.errorMessage != null) ...[
+            const SizedBox(height: 20),
+            _buildErrorMessage(viewModel),
+          ],
+          const SizedBox(height: 20),
+          _buildResetEmailField(viewModel),
+          const SizedBox(height: 20),
+          _buildSendResetButton(viewModel),
+          const SizedBox(height: 10),
+          TextButton(
+            onPressed: viewModel.isLoading ? null : viewModel.toggleResetForm,
+            child: const Text("Back to Login"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmailField(LoginViewModel viewModel) {
+    return TextFormField(
+      controller: viewModel.emailController,
+      enabled: !viewModel.isLoading,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.mail),
+        hintText: "Email Address",
+        filled: true,
+        fillColor: Colors.grey.shade100,
+      ),
+      validator: viewModel.validateEmail,
+    );
+  }
+
+  Widget _buildPasswordField(LoginViewModel viewModel) {
+    return TextFormField(
+      controller: viewModel.passwordController,
+      obscureText: viewModel.obscurePassword,
+      enabled: !viewModel.isLoading,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.lock),
+        hintText: "Password",
+        suffixIcon: IconButton(
+          icon: Icon(
+            viewModel.obscurePassword ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: viewModel.togglePasswordVisibility,
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade100,
+      ),
+      validator: viewModel.validatePassword,
+    );
+  }
+
+  Widget _buildResetEmailField(LoginViewModel viewModel) {
+    return TextFormField(
+      controller: viewModel.resetEmailController,
+      enabled: !viewModel.isLoading,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.mail),
+        hintText: "Email Address",
+        filled: true,
+        fillColor: Colors.grey.shade100,
+      ),
+      validator: viewModel.validateResetEmail,
+    );
+  }
+
+  Widget _buildErrorMessage(LoginViewModel viewModel) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: Colors.red.shade700),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              viewModel.errorMessage!,
+              style: TextStyle(color: Colors.red.shade700),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 16),
+            color: Colors.red.shade700,
+            onPressed: viewModel.clearError,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuccessMessage(LoginViewModel viewModel) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.check_circle_outline, color: Colors.green.shade700),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              viewModel.resetSuccessMessage!,
+              style: TextStyle(color: Colors.green.shade700),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 16),
+            color: Colors.green.shade700,
+            onPressed: viewModel.clearError,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSignInButton(LoginViewModel viewModel) {
+    return SizedBox(
+      width: double.infinity,
+      child:
+          viewModel.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                onPressed: () async {
+                  if (_formKey.currentState?.validate() == true) {
+                    final result = await viewModel.login();
+                    if (result.isOk) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Logged in successfully!"),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                child: const Text("Sign In"),
+              ),
+    );
+  }
+
+  Widget _buildSendResetButton(LoginViewModel viewModel) {
+    return SizedBox(
+      width: double.infinity,
+      child:
+          viewModel.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                onPressed: () async {
+                  if (_resetFormKey.currentState?.validate() == true) {
+                    await viewModel.sendPasswordResetEmail();
+                  }
+                },
+                child: const Text("Send Reset Email"),
+              ),
+    );
+  }
+
+  Widget _buildSignUpLink(BuildContext context) {
+    return Center(
+      child: TextButton(
+        onPressed: () => context.push(Routes.signUp),
+        child: Text(
+          "Don't have an account? Sign Up Here",
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: const Color.fromARGB(255, 122, 53, 53),
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),

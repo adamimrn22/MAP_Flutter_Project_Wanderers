@@ -1,51 +1,76 @@
 import 'package:flutter/material.dart'; //  Provider
-import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/homepage_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mycrochetbag/routing/routes.dart';
 import 'package:mycrochetbag/ui/customer/widgets/customer_bottom_navigation_bar_widget.dart';
-import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart'; // Import CustomerProfileScreen
-import 'package:mycrochetbag/ui/authentication/signout/view_model/signout_viewmodel.dart';
-import 'package:mycrochetbag/ui/customer/customer_profile/view_model/customer_profile_viewmodel.dart'; // 确保导入了 CustomerProfileViewModel
+import 'package:provider/provider.dart';
 
-class CustomerMainScreen extends StatefulWidget {
-  const CustomerMainScreen({super.key});
-
-  @override
-  _CustomerMainScreenState createState() => _CustomerMainScreenState();
-}
-
-class _CustomerMainScreenState extends State<CustomerMainScreen> {
-  int _selectedIndex = 0;
-  late List<Widget> _screens;
-  final SignoutViewmodel signoutViewModel =
-      SignoutViewmodel(); // Initialize  view model
-
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      CustomerHomepageScreen(viewModel: signoutViewModel), // Pass the viewModel
-      const Center(child: Text('Custom Page')),
-      const Center(child: Text('Cart Page')),
-      const Center(child: Text('Cart Page')),
-      const CustomerProfileScreen(),
-    ];
-  }
-
-  void _onItemTapped(int index) {
-    if (index < _screens.length) {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-  }
+class CustomerMainScreen extends StatelessWidget {
+  final Widget child;
+  const CustomerMainScreen({required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: CustomerBottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+    return ChangeNotifierProvider(
+      create: (_) => CustomerNavigationProvider(),
+      child: Consumer<CustomerNavigationProvider>(
+        builder: (context, navProvider, _) {
+          // Update selected index based on current route
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final location = GoRouterState.of(context).uri.toString();
+            navProvider.updateIndexFromRoute(location);
+          });
+
+          return Scaffold(
+            body: child,
+            bottomNavigationBar: CustomerBottomNavBar(
+              currentIndex: navProvider.selectedIndex,
+              onTap: (index) {
+                navProvider.setIndex(index);
+                context.push(navProvider.getRouteForIndex(index));
+              },
+            ),
+          );
+        },
       ),
     );
   }
+}
+
+class CustomerNavigationProvider extends ChangeNotifier {
+  int _selectedIndex = 0;
+  int get selectedIndex => _selectedIndex;
+
+  static const _routeIndices = {
+    Routes.customerHome: 0,
+    Routes.customerCustomOrder: 1,
+    Routes.customerCart: 2,
+    Routes.customerOrders: 3,
+    Routes.customerProfile: 4,
+  };
+
+  static const _indexRoutes = [
+    Routes.customerHome,
+    Routes.customerCustomOrder,
+    Routes.customerCart,
+    Routes.customerOrders,
+    Routes.customerProfile,
+  ];
+
+  void updateIndexFromRoute(String location) {
+    _selectedIndex =
+        _routeIndices.entries
+            .firstWhere(
+              (entry) => location.startsWith(entry.key),
+              orElse: () => const MapEntry(Routes.customerHome, 0),
+            )
+            .value;
+    notifyListeners();
+  }
+
+  void setIndex(int index) {
+    _selectedIndex = index;
+    notifyListeners();
+  }
+
+  String getRouteForIndex(int index) => _indexRoutes[index];
 }

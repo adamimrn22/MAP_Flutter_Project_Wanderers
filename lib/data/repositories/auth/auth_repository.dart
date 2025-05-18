@@ -17,8 +17,10 @@ abstract class AuthRepository {
     required String oobCode,
     required String newPassword,
   });
+  Future<Result<void>> signOut();
   Future<Result<void>> changePassword({
     required String oldPassword,
     required String newPassword,
   });
+  Future<String?> getUserRole();
 }

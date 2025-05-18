@@ -52,10 +52,16 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
                   "Sign Up for Exclusive Crochet Designs & Offers",
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.blueGrey),
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.black87),
                 ),
-                const SizedBox(height: 30),
-                _buildNameFields(viewModel),
+                if (viewModel.hasError && viewModel.errorMessage != null) ...[
+                  const SizedBox(height: 20),
+                  _buildErrorMessage(viewModel),
+                ],
+                const SizedBox(height: 20),
+                _buildFirstNameField(viewModel),
+                const SizedBox(height: 15),
+                _buildLastNameField(viewModel),
                 const SizedBox(height: 15),
                 _buildPhoneField(viewModel),
                 const SizedBox(height: 15),
@@ -65,9 +71,6 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
                 const SizedBox(height: 15),
                 _buildConfirmPasswordField(viewModel),
                 const SizedBox(height: 20),
-                if (viewModel.hasError && viewModel.errorMessage != null)
-                  _buildErrorMessage(viewModel),
-                const SizedBox(height: 10),
                 _buildSignUpButton(viewModel),
                 const SizedBox(height: 10),
                 _buildSignInLink(context),
@@ -79,41 +82,30 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
     );
   }
 
-  Widget _buildNameFields(SignUpViewmodel viewModel) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextFormField(
-            controller: viewModel.firstNameController,
-            decoration: InputDecoration(
-              labelText: "First Name",
-              labelStyle: TextStyle(color: Theme.of(context).primaryColor),
-              prefixIcon: Icon(
-                Icons.person,
-                color: Theme.of(context).primaryColor,
-              ),
-              hintText: "Ahmad",
-            ),
-            validator: viewModel.validateName,
-          ),
-        ),
-        const SizedBox(width: 20),
-        Expanded(
-          child: TextFormField(
-            controller: viewModel.lastNameController,
-            decoration: InputDecoration(
-              labelText: "Last Name",
-              labelStyle: TextStyle(color: Theme.of(context).primaryColor),
-              prefixIcon: Icon(
-                Icons.person,
-                color: Theme.of(context).primaryColor,
-              ),
-              hintText: "Doe",
-            ),
-            validator: viewModel.validateName,
-          ),
-        ),
-      ],
+  Widget _buildFirstNameField(SignUpViewmodel viewModel) {
+    return TextFormField(
+      controller: viewModel.firstNameController,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.grey.shade100,
+        hintText: "First Name",
+        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
+        prefixIcon: Icon(Icons.person),
+      ),
+      validator: viewModel.validateName,
+    );
+  }
+
+  Widget _buildLastNameField(SignUpViewmodel viewModel) {
+    return TextFormField(
+      controller: viewModel.lastNameController,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.person),
+        hintText: "Last Name",
+        filled: true,
+        fillColor: Colors.grey.shade100,
+      ),
+      validator: viewModel.validateName,
     );
   }
 
@@ -125,12 +117,11 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
         FilteringTextInputFormatter.digitsOnly,
         _PhoneNumberFormatter(),
       ],
-      style: TextStyle(color: Theme.of(context).primaryColor),
       decoration: InputDecoration(
-        labelText: "Phone Number",
-        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
-        prefixIcon: Icon(Icons.phone, color: Theme.of(context).primaryColor),
+        prefixIcon: Icon(Icons.phone),
         hintText: "010-1234567",
+        filled: true,
+        fillColor: Colors.grey.shade100,
       ),
       validator: viewModel.validatePhone,
     );
@@ -140,11 +131,12 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
     return TextFormField(
       controller: viewModel.emailController,
       decoration: InputDecoration(
-        labelText: "Email Address",
-        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
-        prefixIcon: Icon(Icons.mail, color: Theme.of(context).primaryColor),
-        hintText: "ahmadoe@email.com",
+        prefixIcon: Icon(Icons.mail),
+        hintText: "Email Address",
+        filled: true,
+        fillColor: Colors.grey.shade100,
       ),
+
       validator: viewModel.validateEmail,
     );
   }
@@ -154,16 +146,16 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
       controller: viewModel.passwordController,
       obscureText: viewModel.obscurePassword,
       decoration: InputDecoration(
-        labelText: "Password",
-        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
-        prefixIcon: Icon(Icons.lock, color: Theme.of(context).primaryColor),
+        hintText: "Password",
+        prefixIcon: Icon(Icons.lock),
         suffixIcon: IconButton(
           icon: Icon(
             viewModel.obscurePassword ? Icons.visibility : Icons.visibility_off,
-            color: Theme.of(context).primaryColor,
           ),
           onPressed: viewModel.togglePasswordVisibility,
         ),
+        filled: true,
+        fillColor: Colors.grey.shade100,
       ),
       validator: viewModel.validatePassword,
     );
@@ -174,18 +166,18 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
       controller: viewModel.confirmPasswordController,
       obscureText: viewModel.obscureConfirmPassword,
       decoration: InputDecoration(
-        labelText: "Confirm Password",
-        labelStyle: TextStyle(color: Theme.of(context).primaryColor),
-        prefixIcon: Icon(Icons.lock, color: Theme.of(context).primaryColor),
+        hintText: "Confirm Password",
+        prefixIcon: Icon(Icons.lock),
         suffixIcon: IconButton(
           icon: Icon(
             viewModel.obscureConfirmPassword
                 ? Icons.visibility
                 : Icons.visibility_off,
-            color: Theme.of(context).primaryColor,
           ),
           onPressed: viewModel.toggleConfirmPasswordVisibility,
         ),
+        filled: true,
+        fillColor: Colors.grey.shade100,
       ),
       validator: viewModel.validateConfirmPassword,
     );
@@ -226,7 +218,12 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
       child:
           viewModel.isLoading
               ? const Center(child: CircularProgressIndicator())
-              : FilledButton(
+              : ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
                 onPressed: () async {
                   if (_formKey.currentState?.validate() == true) {
                     final result = await viewModel.signUp();
@@ -255,7 +252,7 @@ class _SignupScreenContentState extends State<_SignupScreenContent> {
         child: Text(
           "Already have an account? Sign In Here",
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.blueGrey,
+            color: Color.fromARGB(255, 122, 53, 53),
             fontWeight: FontWeight.bold,
           ),
         ),

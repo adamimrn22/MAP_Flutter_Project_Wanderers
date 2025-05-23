@@ -18,6 +18,8 @@ abstract final class Routes {
   static const sellerProfile = '/seller/profile';
   static const sellerProduct = '/seller/products';
   static const sellerOrders = '/seller/orders';
+  static const sellerAddBag = '/seller/add-bag';
+
 
   // Admin Route
   static const adminHome = '/admin/home';

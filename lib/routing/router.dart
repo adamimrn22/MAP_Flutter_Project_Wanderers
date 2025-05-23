@@ -28,6 +28,8 @@ import 'package:mycrochetbag/ui/customer/widgets/customer_main_screen.dart';
 import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart';
 import 'package:mycrochetbag/ui/admin/widgets/admin_profile_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_add_bag/widget/seller_addbag_screen.dart';
+
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -167,6 +169,11 @@ GoRouter router(AuthServices authServices) => GoRouter(
           path: Routes.sellerProfile, // /seller/profile
           builder: (context, state) => const SellerProfileScreen(),
         ),
+        GoRoute(
+          path: Routes.sellerAddBag, // '/seller/add-bag'
+          builder: (context, state) => AddProductPage(),
+        ),
+
       ],
     ),
     // GoRoute(

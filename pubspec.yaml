@@ -17,6 +17,8 @@ dependencies:
   provider: ^6.1.5
   google_fonts: ^6.2.1
   flutter_tabler_icons: ^1.43.0
+  image_picker: ^1.0.4
+  supabase_flutter: ^1.10.17
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +29,7 @@ flutter:
   uses-material-design: true
   assets: 
     - assets/
+
+dependency_overrides:
+  sign_in_with_apple:
+    path: ../sign_in_with_apple_stub

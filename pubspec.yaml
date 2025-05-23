@@ -18,7 +18,7 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_tabler_icons: ^1.43.0
   image_picker: ^1.0.4
-  supabase_flutter: ^1.10.17
+  supabase_flutter: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -30,6 +30,6 @@ flutter:
   assets: 
     - assets/
 
-dependency_overrides:
-  sign_in_with_apple:
-    path: ../sign_in_with_apple_stub
+# dependency_overrides:
+#   sign_in_with_apple:
+#     path: ../sign_in_with_apple_stub

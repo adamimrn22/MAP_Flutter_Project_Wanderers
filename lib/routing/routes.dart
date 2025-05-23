@@ -19,6 +19,8 @@ abstract final class Routes {
   static const sellerProduct = '/seller/products';
   static const sellerOrders = '/seller/orders';
   static const sellerAddBag = '/seller/add-bag';
+  static const sellerPreviewBag = '/seller/preview-bag';
+
 
 
   // Admin Route

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/routing/routes.dart';
 import 'package:mycrochetbag/ui/seller/seller_product/view_model/seller_product_view_model.dart';
+import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_preview_bag/widgets/seller_previewBag_screen.dart';
+
 
 class SellerProductScreen extends StatelessWidget {
   const SellerProductScreen({super.key});
@@ -84,7 +86,13 @@ class SellerProductScreen extends StatelessWidget {
 
                       return InkWell(
                         onTap: () {
-                          Navigator.pushNamed(context, '/editProduct', arguments: data);
+                          // Navigate to the preview screen for the selected product
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SellerPreviewBagScreen(productId: products[index].id),
+                            ),
+                          );
                         },
                         child: Row(
                           children: [

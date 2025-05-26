@@ -6,7 +6,7 @@ import 'package:mycrochetbag/ui/authentication/change_password/widget/change_pas
 import 'package:mycrochetbag/ui/authentication/login/view_model/login_viewmodel.dart';
 import 'package:mycrochetbag/ui/customer/customer_cart/widget/customer_cart_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_order_screen.dart';
-import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/customer_homepage_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_order/widgets/customer_order_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/seller_homepage_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_order/widget/seller_order_screen.dart';

@@ -8,7 +8,7 @@ import 'package:mycrochetbag/ui/customer/customer_cart/widget/customer_cart_scre
 import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_order_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/homepage_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_order/widgets/customer_order_screen.dart';
-import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/seller_homepage_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_order/widget/seller_order_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_product/widget/seller_product_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_profile/seller_profile_screen.dart';
@@ -30,7 +30,6 @@ import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_scree
 import 'package:mycrochetbag/ui/admin/widgets/admin_profile_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_add_bag/widget/seller_addbag_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_preview_bag/widgets/seller_previewBag_screen.dart';
-
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -176,9 +175,11 @@ GoRouter router(AuthServices authServices) => GoRouter(
         ),
         GoRoute(
           path: Routes.sellerPreviewBag, // '/seller/preview-bag'
-          builder: (context, state) => const SellerPreviewBagScreen(productId: '',), // Or with data if needed
+          builder:
+              (context, state) => const SellerPreviewBagScreen(
+                productId: '',
+              ), // Or with data if needed
         ),
-
       ],
     ),
     // GoRoute(

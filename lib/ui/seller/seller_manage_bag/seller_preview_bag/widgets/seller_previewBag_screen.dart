@@ -28,7 +28,11 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
   }
 
   void _fetchProduct() async {
-    final doc = await FirebaseFirestore.instance.collection('products').doc(widget.productId).get();
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('products')
+            .doc(widget.productId)
+            .get();
     if (doc.exists) {
       setState(() {
         _productData = doc.data()!;
@@ -51,20 +55,26 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
   Future<void> _confirmDelete() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
-        content: const Text('Are you sure you want to delete this product?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirm Delete'),
+            content: const Text(
+              'Are you sure you want to delete this product?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
@@ -76,9 +86,9 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
         );
         Navigator.pop(context);
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to delete: $e')));
       }
     }
   }
@@ -109,7 +119,10 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Spacer(),
-                  const Text('Bag Detail', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  const Text(
+                    'Bag Detail',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
                   const Spacer(flex: 2),
                 ],
               ),
@@ -156,7 +169,10 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
                         height: 8,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: _currentImageIndex == index ? Colors.amber : Colors.grey.shade300,
+                          color:
+                              _currentImageIndex == index
+                                  ? Colors.amber
+                                  : Colors.grey.shade300,
                         ),
                       ),
                     ),
@@ -177,24 +193,37 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
                     _info("Product Name", _productData!['name']),
                     _info("Price", 'RM ${_productData!['price']}'),
                     _info("Stock", _productData!['stock'].toString()),
-                    _info("Size", (_productData!['sizes'] as List).isNotEmpty ? _productData!['sizes'][0] : '-'),
+                    _info(
+                      "Size",
+                      (_productData!['sizes'] as List).isNotEmpty
+                          ? _productData!['sizes'][0]
+                          : '-',
+                    ),
                     _info("Category", _productData!['category']),
                     _info("Material", _productData!['material']),
                     const SizedBox(height: 12),
-                    const Text("Colors", style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      "Colors",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 4),
-                    ...(_productData!['colors'] as List).map((color) => Padding(
-                          padding: const EdgeInsets.only(left: 8, bottom: 4),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.circle, size: 6),
-                              const SizedBox(width: 6),
-                              Text(color),
-                            ],
-                          ),
-                        )),
+                    ...(_productData!['colors'] as List).map(
+                      (color) => Padding(
+                        padding: const EdgeInsets.only(left: 8, bottom: 4),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.circle, size: 6),
+                            const SizedBox(width: 6),
+                            Text(color),
+                          ],
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 12),
-                    const Text("Description", style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      "Description",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 4),
                     Text(_productData!['description']),
                   ],
@@ -210,7 +239,11 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/editProduct', arguments: _productData);
+                        Navigator.pushNamed(
+                          context,
+                          '/editProduct',
+                          arguments: _productData,
+                        );
                       },
                       child: const Text('Edit'),
                     ),
@@ -227,7 +260,7 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -240,7 +273,13 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 100, child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold))),
+          SizedBox(
+            width: 100,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
           Expanded(child: Text(value)),
         ],
       ),

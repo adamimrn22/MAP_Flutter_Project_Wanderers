@@ -30,6 +30,7 @@ import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_scree
 import 'package:mycrochetbag/ui/admin/widgets/admin_profile_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_add_bag/widget/seller_addbag_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_preview_bag/widgets/seller_previewBag_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_profile/customer_edit_profile_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -96,6 +97,10 @@ GoRouter router(AuthServices authServices) => GoRouter(
         GoRoute(
           path: Routes.customerProfile,
           builder: (context, state) => const CustomerProfileScreen(),
+        ),
+        GoRoute(
+          path: Routes.customerEditProfile,
+          builder: (context, state) => const CustomerEditProfileScreen(),
         ),
       ],
     ),

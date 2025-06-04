@@ -3,23 +3,73 @@ import 'package:mycrochetbag/utils/get_name_initials.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/routing/routes.dart';
-import 'package:mycrochetbag/data/services/auth_service.dart'; // import AuthServices
+import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/ui/core/themes/themes.dart';
+import 'package:mycrochetbag/firebase_services.dart';
 
-class CustomerProfileScreen extends StatelessWidget {
+class CustomerProfileScreen extends StatefulWidget {
   const CustomerProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authService = Provider.of<AuthServices>(
-      context,
-      listen: false,
-    ); // get AuthServices
+  _CustomerProfileScreenState createState() => _CustomerProfileScreenState();
+}
 
-    // use authService get user email
-    final userEmail = authService.currentUserEmail;
-    final userNameFuture =
-        authService.getCurrentUserName(); // get Future<String?>
+class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
+  final FirestoreServices _firestoreService = FirestoreServices();
+  Map<String, dynamic>? _userData;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  void _fetchUserData() async {
+    final authService = Provider.of<AuthServices>(context, listen: false);
+    final userId = authService.currentUser?.uid ?? '';
+    if (userId.isEmpty) {
+      setState(() {
+        _userData = null;
+        _loading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+    });
+
+    try {
+      final data = await _firestoreService.getUserData(userId);
+      setState(() {
+        _userData = data;
+        _loading = false;
+      });
+    } catch (e) {
+      print("❌ Error fetching user data: $e");
+      setState(() {
+        _userData = null;
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authService = Provider.of<AuthServices>(context, listen: false);
+
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final userEmail = authService.currentUserEmail ?? 'please login';
+    final userName =
+        _userData != null
+            ? '${_userData!['firstName'] ?? ''} ${_userData!['lastName'] ?? ''}'
+                .trim()
+            : 'please login';
+    final profilePictureUrl = _userData?['profilePictureUrl'] ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -47,83 +97,47 @@ class CustomerProfileScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Theme.of(context).primaryColor,
-                      child: FutureBuilder<String?>(
-                        future: userNameFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            );
-                          } else if (snapshot.hasError ||
-                              !snapshot.hasData ||
-                              snapshot.data == null) {
-                            return const Text(
-                              '?',
-                              style: TextStyle(
-                                fontSize: 30,
-                                color: Colors.white,
+                      child:
+                          profilePictureUrl.isNotEmpty
+                              ? ClipOval(
+                                child: Image.network(
+                                  '$profilePictureUrl?${DateTime.now().millisecondsSinceEpoch}',
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) => Text(
+                                        GetNameInitials.getInitials(userName),
+                                        style: const TextStyle(
+                                          fontSize: 30,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                ),
+                              )
+                              : Text(
+                                GetNameInitials.getInitials(userName),
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.white,
+                                ),
                               ),
-                            );
-                          } else {
-                            final initials = GetNameInitials.getInitials(
-                              snapshot.data!,
-                            );
-                            return Text(
-                              initials,
-                              style: const TextStyle(
-                                fontSize: 30,
-                                color: Colors.white,
-                              ),
-                            );
-                          }
-                        },
-                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          FutureBuilder<String?>(
-                            // USE FutureBuilder
-                            future: userNameFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Text(
-                                  'Loading...',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                );
-                              } else if (snapshot.hasError) {
-                                return const Text(
-                                  'error',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                );
-                              } else {
-                                final userName = snapshot.data;
-                                return Text(
-                                  userName ?? 'please login', // show username
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                );
-                              }
-                            },
+                          Text(
+                            userName.isEmpty ? 'please login' : userName,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
                           Text(
-                            userEmail ?? 'please login', //  show email
+                            userEmail,
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.grey,
@@ -134,16 +148,19 @@ class CustomerProfileScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 24),
-
+                _buildOptionTile(context, 'Edit Profile', () {
+                  context.push(Routes.customerEditProfile).then((_) {
+                    // Refresh user data after editing
+                    _fetchUserData();
+                  });
+                }),
                 _buildOptionTile(
                   context,
                   'Language',
                   () {},
                   trailing: const Text('English (UK)'),
                 ),
-
                 _buildOptionTile(context, 'Change Password', () {
                   context.push(Routes.changePassword);
                 }),
@@ -153,7 +170,6 @@ class CustomerProfileScreen extends StatelessWidget {
                 _buildOptionTile(context, 'Payment Method', () {
                   // TODO: Implement Payment Method
                 }),
-
                 _buildOptionTile(context, 'FAQ', () {
                   // TODO: Implement FAQ
                 }),
@@ -170,10 +186,6 @@ class CustomerProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
           onPressed: () async {
-            final authService = Provider.of<AuthServices>(
-              context,
-              listen: false,
-            );
             final result = await authService.signOut();
             if (result.isOk) {
               if (context.mounted) {

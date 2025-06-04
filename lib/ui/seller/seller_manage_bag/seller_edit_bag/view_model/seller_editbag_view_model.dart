@@ -29,7 +29,7 @@ class SellerEditBagViewModel extends ChangeNotifier {
   bool isLoading = false;
   
   // Static data - same as add form
-  final List<String> sizes = ['XS', 'S', 'M', 'L', 'XL'];
+  final List<String> sizes = [ 'S', 'M', 'L'];
   final List<String> bagCategories = [
     'Tote',
     'Sling',

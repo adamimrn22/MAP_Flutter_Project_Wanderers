@@ -215,4 +215,24 @@ class FirestoreServices {
       rethrow;
     }
   }
+
+  Future<void> deleteUserData(String userId) async {
+    try {
+      // Delete profile picture from Supabase
+      final filePath = 'profile_pictures/profile_$userId.png';
+      try {
+        await _supabase.storage.from('product-images').remove([filePath]);
+        print('🗑️ Deleted profile picture: $filePath');
+      } catch (e) {
+        print('⚠️ No profile picture to delete or error: $e');
+      }
+
+      // Delete Firestore user document
+      await _firestore.collection('users').doc(userId).delete();
+      print('✅ Deleted user document for userId: $userId');
+    } catch (e, stackTrace) {
+      print('❌ Error deleting user data: $e\n📍 StackTrace: $stackTrace');
+      rethrow;
+    }
+  }
 }

@@ -47,12 +47,133 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
         _loading = false;
       });
     } catch (e) {
-      print("❌ Error fetching user data: $e");
+      print('❌ Error fetching user data: $e');
       setState(() {
         _userData = null;
         _loading = false;
       });
     }
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    final authService = Provider.of<AuthServices>(context, listen: false);
+    if (authService.currentUser == null ||
+        authService.currentUserEmail == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No user is signed in')));
+      return;
+    }
+
+    // Show password input dialog
+    final password = await _showPasswordDialog(context);
+    if (password == null) return; // User cancelled
+
+    // Reauthenticate user
+    try {
+      final reauthResult = await authService.reauthenticate(
+        authService.currentUserEmail!,
+        password,
+      );
+      if (!reauthResult.isOk) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to reauthenticate')));
+        }
+        return;
+      }
+
+      // Proceed with deletion
+      await _firestoreService.deleteUserData(authService.currentUser!.uid);
+      final deleteResult = await authService.deleteAccount();
+      if (deleteResult.isOk) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          context.pushReplacement(Routes.login);
+        }
+      } else {
+        throw deleteResult.asError;
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to delete account: $e')));
+      }
+    }
+  }
+
+  Future<String?> _showPasswordDialog(BuildContext context) async {
+    final passwordController = TextEditingController();
+    bool obscureText = true;
+
+    return showDialog<String>(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setState) => AlertDialog(
+                  title: const Text('Confirm Account Deletion'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Please enter your password to confirm account deletion.',
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: passwordController,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              obscureText
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                obscureText = !obscureText;
+                              });
+                            },
+                          ),
+                        ),
+                        obscureText: obscureText,
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, null),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (passwordController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter your password'),
+                            ),
+                          );
+                          return;
+                        }
+                        Navigator.pop(context, passwordController.text);
+                      },
+                      child: const Text(
+                        'Confirm',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+          ),
+    );
   }
 
   @override
@@ -151,7 +272,6 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                 const SizedBox(height: 24),
                 _buildOptionTile(context, 'Edit Profile', () {
                   context.push(Routes.customerEditProfile).then((_) {
-                    // Refresh user data after editing
                     _fetchUserData();
                   });
                 }),
@@ -176,6 +296,12 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                 _buildOptionTile(context, 'Privacy Policy', () {
                   // TODO: Implement Privacy Policy
                 }),
+                _buildOptionTile(
+                  context,
+                  'Delete Account',
+                  _confirmDeleteAccount,
+                  textColor: Colors.red,
+                ),
                 const SizedBox(height: 80),
               ],
             ),
@@ -191,7 +317,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text("Logged out successfully!"),
+                    content: Text('Logged out successfully!'),
                     backgroundColor: Colors.green,
                   ),
                 );
@@ -201,7 +327,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Sign out fail: ${result.asError.error}'),
+                    content: Text('Sign out fail: ${result.asError}'),
                     duration: const Duration(seconds: 3),
                   ),
                 );
@@ -220,11 +346,12 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
     String title,
     VoidCallback onTap, {
     Widget? trailing,
+    Color? textColor,
   }) {
     return ListTile(
       title: Text(
         title,
-        style: const TextStyle(fontSize: 18, color: Colors.black),
+        style: TextStyle(fontSize: 18, color: textColor ?? Colors.black),
       ),
       trailing:
           trailing ??

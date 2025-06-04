@@ -13,7 +13,7 @@ class SellerProductScreen extends StatelessWidget {
     final viewModel = SellerProductViewModel();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF1F4),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
         child: Column(
@@ -61,8 +61,21 @@ class SellerProductScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            const Text('Your Products', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            StreamBuilder(
+              stream: viewModel.getProductsStream(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Text('Your Products', style: TextStyle(fontWeight: FontWeight.bold));
+                }
+
+                final total = snapshot.data!.docs.length;
+                return Text(
+                  '$total Products',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                );
+              },
+            ),
+            const SizedBox(height: 5),
 
             Expanded(
               child: StreamBuilder(

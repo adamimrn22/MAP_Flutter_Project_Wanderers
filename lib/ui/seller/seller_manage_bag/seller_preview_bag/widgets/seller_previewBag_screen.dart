@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mycrochetbag/routing/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mycrochetbag/firebase_services.dart';
 
@@ -13,7 +15,7 @@ class SellerPreviewBagScreen extends StatefulWidget {
 
 class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
   final FirestoreServices _firestoreService = FirestoreServices();
-
+  
   late PageController _pageController;
   int _currentImageIndex = 0;
 
@@ -90,6 +92,24 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
           context,
         ).showSnackBar(SnackBar(content: Text('Failed to delete: $e')));
       }
+    }
+  }
+
+  Future<void> _refreshProductData() async {
+    try {
+      // Fetch updated data from Firebase
+      final doc = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(widget.productId) // or however you access the product ID
+          .get();
+      
+      if (doc.exists) {
+        setState(() {
+          _productData = doc.data()!;
+        });
+      }
+    } catch (e) {
+      print('Error refreshing product data: $e');
     }
   }
 
@@ -196,7 +216,7 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
                     _info(
                       "Size",
                       (_productData!['sizes'] as List).isNotEmpty
-                          ? _productData!['sizes'][0]
+                          ? (_productData!['sizes'] as List).join(', ')
                           : '-',
                     ),
                     _info("Category", _productData!['category']),
@@ -238,13 +258,20 @@ class _SellerPreviewBagScreenState extends State<SellerPreviewBagScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/editProduct',
-                          arguments: _productData,
-                        );
-                      },
+                     onPressed: () async{
+                      final productDataWithId = Map<String, dynamic>.from(_productData!);
+                      if (!productDataWithId.containsKey('id')) {
+                        productDataWithId['id'] = widget.productId; // or however you access the product ID
+                      }
+                      
+                      print('Navigating with product data: $productDataWithId'); // Debug
+                      
+                      final result = await context.push(Routes.sellerEditBag, extra: productDataWithId);
+                      if (result == true || result == null) {
+                        // Refresh the product data - call your method to reload data from Firebase
+                        _refreshProductData(); // You'll need to implement this method
+                      }
+                    },
                       child: const Text('Edit'),
                     ),
                   ),

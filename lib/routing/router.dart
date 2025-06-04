@@ -30,6 +30,7 @@ import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_scree
 import 'package:mycrochetbag/ui/admin/widgets/admin_profile_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_add_bag/widget/seller_addbag_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_preview_bag/widgets/seller_previewBag_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_edit_bag/widgets/seller_editbag_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_edit_profile_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -181,9 +182,32 @@ GoRouter router(AuthServices authServices) => GoRouter(
         GoRoute(
           path: Routes.sellerPreviewBag, // '/seller/preview-bag'
           builder:
-              (context, state) => const SellerPreviewBagScreen(
-                productId: '',
-              ), // Or with data if needed
+              (context, state) => const SellerPreviewBagScreen(productId: ''),
+        ),
+        GoRoute(
+          path: Routes.sellerEditBag, // '/seller/edit-bag'
+          builder: (context, state) {
+            final Map<String, dynamic> productData =
+                state.extra as Map<String, dynamic>;
+
+            // Extract productId - check multiple possible field names
+            String productId = '';
+            if (productData.containsKey('id')) {
+              productId = productData['id'].toString();
+            } else if (productData.containsKey('productId')) {
+              productId = productData['productId'].toString();
+            } else if (productData.containsKey('docId')) {
+              productId = productData['docId'].toString();
+            }
+
+            print('Router - Product ID: $productId'); // Debug
+            print('Router - Product Data keys: ${productData.keys}'); // Debug
+
+            return EditProductPage(
+              productData: productData,
+              productId: productId,
+            );
+          },
         ),
       ],
     ),

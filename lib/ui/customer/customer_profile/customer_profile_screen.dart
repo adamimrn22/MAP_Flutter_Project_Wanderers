@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/routing/routes.dart';
 import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/ui/core/themes/themes.dart';
-import 'package:mycrochetbag/firebase_services.dart';
+import 'package:mycrochetbag/data/services/bag_service.dart';
 
 class CustomerProfileScreen extends StatefulWidget {
   const CustomerProfileScreen({super.key});
@@ -15,7 +15,7 @@ class CustomerProfileScreen extends StatefulWidget {
 }
 
 class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
-  final FirestoreServices _firestoreService = FirestoreServices();
+  final FirestoreBagServices _firestoreService = FirestoreBagServices();
   Map<String, dynamic>? _userData;
   bool _loading = true;
 

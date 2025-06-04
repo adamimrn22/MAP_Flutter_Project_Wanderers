@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mycrochetbag/ui/customer/customer_homepage/home/view_model/customer_homepage_view_model.dart';
-import 'package:mycrochetbag/ui/customer/customer_view_bag/customer_preview_bag_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_view_bag/widgets/customer_preview_bag_screen.dart';
 
 class CustomerHomepageScreen extends StatelessWidget {
   const CustomerHomepageScreen({super.key});
@@ -198,15 +198,14 @@ class CustomerHomepageScreen extends StatelessWidget {
                                           context,
                                           MaterialPageRoute(
                                             builder:
-                                                (context) =>
-                                                    CustomerPreviewBagScreen(
-                                                      productId: bag.id,
-                                                    ),
+                                                (context) => BagDetailScreen(
+                                                  productId: bag.id,
+                                                ),
                                           ),
                                         );
                                       },
                                       child: Card(
-                                        elevation: 2,
+                                        elevation: 1,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,

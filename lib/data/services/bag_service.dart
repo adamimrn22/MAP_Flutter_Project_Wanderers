@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mycrochetbag/domain/model/bag.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
 
-class FirestoreServices {
+class FirestoreBagServices {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final SupabaseClient _supabase = Supabase.instance.client;
 
@@ -16,7 +17,7 @@ class FirestoreServices {
         final url = await SupabaseService().uploadImage(imageFile);
         imageUrls.add(url);
       } catch (e, stackTrace) {
-        print("❌ Supabase Upload failed: $e\n📍 StackTrace: $stackTrace");
+        print("Supabase Upload failed: $e\nStackTrace: $stackTrace");
         rethrow;
       }
     }
@@ -52,9 +53,9 @@ class FirestoreServices {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      print("✅ Product added successfully");
+      print("Product added successfully");
     } catch (e, stackTrace) {
-      print("❌ Error in addProduct: $e\n📍 StackTrace: $stackTrace");
+      print("Error in addProduct: $e\n StackTrace: $stackTrace");
       rethrow;
     }
   }
@@ -83,28 +84,28 @@ class FirestoreServices {
       if (!doc.exists) throw Exception("Product not found");
 
       final productData = doc.data()!;
-      print("🔍 productData: $productData");
+      print("productData: $productData");
       final List<dynamic> imageUrls = productData['images'] ?? [];
-      print("🖼️ imageUrls to delete: $imageUrls");
+      print("imageUrls to delete: $imageUrls");
 
       // Step 2: Delete images from Supabase
       for (String imageUrl in imageUrls) {
         final path = _extractPathFromUrl(imageUrl);
 
         if (path != null) {
-          print("🗑️ Deleting: $path");
+          print("Deleting: $path");
           final res = await _supabase.storage.from('product-images').remove([
             path,
           ]);
-          print("📦 Supabase delete result: $res");
+          print("Supabase delete result: $res");
         } else {
-          print("⚠️ Could not extract path from: $imageUrl");
+          print("Could not extract path from: $imageUrl");
         }
       }
 
       // Step 3: Delete document
       await _firestore.collection('products').doc(productId).delete();
-      print("✅ Firestore product deleted");
+      print("Firestore product deleted");
     } catch (e) {
       rethrow;
     }
@@ -122,7 +123,7 @@ class FirestoreServices {
       // Skip the public, bucket-name, and return path inside the bucket
       return segments.sublist(bucketIndex + 3).join('/');
     } catch (e) {
-      print("⚠️ Error extracting path from URL: $e");
+      print("Error extracting path from URL: $e");
       return null;
     }
   }
@@ -132,14 +133,30 @@ class FirestoreServices {
     try {
       final doc = await _firestore.collection('users').doc(userId).get();
       if (!doc.exists) {
-        print("⚠️ User document not found for userId: $userId");
+        print("User document not found for userId: $userId");
         return null;
       }
-      print("✅ User data retrieved: ${doc.data()}");
+      print("User data retrieved: ${doc.data()}");
       return doc.data();
     } catch (e, stackTrace) {
-      print("❌ Error fetching user data: $e\n📍 StackTrace: $stackTrace");
+      print("Error fetching user data: $e\nStackTrace: $stackTrace");
       rethrow;
+    }
+  }
+
+  Future<Bag?> getProductDetails(String id) async {
+    try {
+      final docSnapshot = await _firestore.collection('products').doc(id).get();
+
+      if (docSnapshot.exists) {
+        return Bag.fromFirestore(docSnapshot);
+      } else {
+        print('Product with ID $id does not exist.');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching product details: $e');
+      return null;
     }
   }
 
@@ -177,17 +194,14 @@ class FirestoreServices {
           .from('product-images')
           .getPublicUrl(filePath);
 
-      print("✅ Profile picture uploaded: $publicUrl");
+      print("Profile picture uploaded: $publicUrl");
       return publicUrl;
     } catch (e, stackTrace) {
-      print(
-        "❌ Error uploading profile picture: $e\n📍 StackTrace: $stackTrace",
-      );
+      print("Error uploading profile picture: $e\n StackTrace: $stackTrace");
       rethrow;
     }
   }
 
-  // In firebase_services.dart, replace or add this method
   Future<void> updateUserProfile(
     String userId, {
     required String userName,
@@ -209,9 +223,9 @@ class FirestoreServices {
           .collection('users')
           .doc(userId)
           .set(data, SetOptions(merge: true));
-      print("✅ User profile updated for userId: $userId");
+      print("User profile updated for userId: $userId");
     } catch (e, stackTrace) {
-      print("❌ Error updating user profile: $e\n📍 StackTrace: $stackTrace");
+      print("Error updating user profile: $e\n StackTrace: $stackTrace");
       rethrow;
     }
   }
@@ -229,9 +243,9 @@ class FirestoreServices {
 
       // Delete Firestore user document
       await _firestore.collection('users').doc(userId).delete();
-      print('✅ Deleted user document for userId: $userId');
+      print('Deleted user document for userId: $userId');
     } catch (e, stackTrace) {
-      print('❌ Error deleting user data: $e\n📍 StackTrace: $stackTrace');
+      print('Error deleting user data: $e\nStackTrace: $stackTrace');
       rethrow;
     }
   }

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mycrochetbag/firebase_services.dart'; // Assuming this handles Firestore operations
+import 'package:mycrochetbag/data/services/bag_service.dart'; // Assuming this handles Firestore operations
 import 'package:mycrochetbag/data/services/auth_service.dart'; // For accessing current user
 
 class EditProfileViewModel extends ChangeNotifier {
@@ -26,7 +26,7 @@ class EditProfileViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final userData = await FirestoreServices().getUserData(
+      final userData = await FirestoreBagServices().getUserData(
         authService.currentUser!.uid,
       );
       firstName = userData?['firstName'] ?? '';
@@ -66,14 +66,15 @@ class EditProfileViewModel extends ChangeNotifier {
       String? newProfilePictureUrl = profilePictureUrl;
       if (profileImage != null) {
         // Upload new profile picture to Supabase
-        newProfilePictureUrl = await FirestoreServices().uploadProfilePicture(
-          File(profileImage!.path),
-          authService.currentUser!.uid,
-        );
+        newProfilePictureUrl = await FirestoreBagServices()
+            .uploadProfilePicture(
+              File(profileImage!.path),
+              authService.currentUser!.uid,
+            );
       }
 
       // Update user data in Firestore
-      await FirestoreServices().updateUserProfile(
+      await FirestoreBagServices().updateUserProfile(
         authService.currentUser!.uid,
         userName: '$firstName $lastName', // Combine for backward compatibility
         profilePictureUrl: newProfilePictureUrl ?? '',

@@ -7,7 +7,7 @@ import 'package:mycrochetbag/ui/customer/customer_view_bag/view_model/cart_viewm
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:mycrochetbag/data/services/auth_service.dart';
-import 'package:mycrochetbag/routing/router.dart'; // Import CustomerProfileViewModel
+import 'package:mycrochetbag/routing/router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -20,30 +20,14 @@ Future<void> main() async {
   );
 
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(
-      statusBarColor: Color(0xFF8E4A58), // Ba  For iOS
-    ),
+    SystemUiOverlayStyle(statusBarColor: Color(0xFF8E4A58)),
   );
 
   final authServices = AuthServices();
-  final cartService = FirestoreCartService();
 
   runApp(
-    MultiProvider(
-      // Use MultiProvider
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthServices()),
-        ChangeNotifierProxyProvider<AuthServices, CartViewModel?>(
-          create: (_) => null,
-          update: (context, authService, previous) {
-            if (authService.currentUser != null) {
-              return CartViewModel(cartService, authService.currentUser!.uid);
-            }
-            previous?.dispose();
-            return null;
-          },
-        ),
-      ],
+    ChangeNotifierProvider(
+      create: (_) => authServices,
       child: MainApp(authServices: authServices),
     ),
   );
@@ -56,10 +40,29 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: router(authServices),
-      title: 'My Crochet Bag',
-      theme: roseBlushTheme,
+    return Consumer<AuthServices>(
+      builder: (context, authService, child) {
+        return MultiProvider(
+          providers: [
+            // Provide AuthServices
+            ChangeNotifierProvider.value(value: authService),
+            // Conditionally provide CartViewModel
+            if (authService.currentUser != null)
+              ChangeNotifierProvider(
+                create:
+                    (_) => CartViewModel(
+                      FirestoreCartService(),
+                      authService.currentUser!.uid,
+                    ),
+              ),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router(authServices),
+            title: 'My Crochet Bag',
+            theme: roseBlushTheme,
+          ),
+        );
+      },
     );
   }
 }

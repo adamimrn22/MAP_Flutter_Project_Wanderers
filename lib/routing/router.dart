@@ -6,9 +6,9 @@ import 'package:mycrochetbag/ui/authentication/change_password/widget/change_pas
 import 'package:mycrochetbag/ui/authentication/login/view_model/login_viewmodel.dart';
 import 'package:mycrochetbag/ui/customer/customer_cart/widget/customer_cart_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_order_screen.dart';
-import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/customer_homepage_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_order/widgets/customer_order_screen.dart';
-import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/homepage_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/seller_homepage_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_order/widget/seller_order_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_product/widget/seller_product_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_profile/seller_profile_screen.dart';
@@ -28,6 +28,10 @@ import 'package:mycrochetbag/ui/customer/widgets/customer_main_screen.dart';
 import 'package:mycrochetbag/ui/seller/widget/seller_main_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_profile/customer_profile_screen.dart';
 import 'package:mycrochetbag/ui/admin/widgets/admin_profile_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_add_bag/widget/seller_addbag_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_preview_bag/widgets/seller_previewBag_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_manage_bag/seller_edit_bag/widgets/seller_editbag_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_profile/customer_edit_profile_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -94,6 +98,10 @@ GoRouter router(AuthServices authServices) => GoRouter(
         GoRoute(
           path: Routes.customerProfile,
           builder: (context, state) => const CustomerProfileScreen(),
+        ),
+        GoRoute(
+          path: Routes.customerEditProfile,
+          builder: (context, state) => const CustomerEditProfileScreen(),
         ),
       ],
     ),
@@ -166,6 +174,40 @@ GoRouter router(AuthServices authServices) => GoRouter(
         GoRoute(
           path: Routes.sellerProfile, // /seller/profile
           builder: (context, state) => const SellerProfileScreen(),
+        ),
+        GoRoute(
+          path: Routes.sellerAddBag, // '/seller/add-bag'
+          builder: (context, state) => AddProductPage(),
+        ),
+        GoRoute(
+          path: Routes.sellerPreviewBag, // '/seller/preview-bag'
+          builder:
+              (context, state) => const SellerPreviewBagScreen(productId: ''),
+        ),
+        GoRoute(
+          path: Routes.sellerEditBag, // '/seller/edit-bag'
+          builder: (context, state) {
+            final Map<String, dynamic> productData =
+                state.extra as Map<String, dynamic>;
+
+            // Extract productId - check multiple possible field names
+            String productId = '';
+            if (productData.containsKey('id')) {
+              productId = productData['id'].toString();
+            } else if (productData.containsKey('productId')) {
+              productId = productData['productId'].toString();
+            } else if (productData.containsKey('docId')) {
+              productId = productData['docId'].toString();
+            }
+
+            print('Router - Product ID: $productId'); // Debug
+            print('Router - Product Data keys: ${productData.keys}'); // Debug
+
+            return EditProductPage(
+              productData: productData,
+              productId: productId,
+            );
+          },
         ),
       ],
     ),

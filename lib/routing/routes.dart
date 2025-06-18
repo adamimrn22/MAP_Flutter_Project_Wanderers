@@ -12,12 +12,16 @@ abstract final class Routes {
   static const customerCart = '/customer/carts';
   static const customerOrders = '/customer/orders';
   static const customerProfile = '/customer/profile';
+  static const customerEditProfile = '/customer/edit-profile';
 
   // Seller Route
   static const sellerHome = '/seller/home';
   static const sellerProfile = '/seller/profile';
   static const sellerProduct = '/seller/products';
   static const sellerOrders = '/seller/orders';
+  static const sellerAddBag = '/seller/add-bag';
+  static const sellerEditBag = '/seller/edit-bag';
+  static const sellerPreviewBag = '/seller/preview-bag';
 
   // Admin Route
   static const adminHome = '/admin/home';

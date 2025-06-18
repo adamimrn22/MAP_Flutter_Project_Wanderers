@@ -10,7 +10,7 @@ class SupabaseService {
     final filePath = 'products/$fileName.png';
 
     final storageResponse = await _client.storage
-        .from('product-images') 
+        .from('product-images')
         .upload(filePath, imageFile);
 
     if (storageResponse.isEmpty) {

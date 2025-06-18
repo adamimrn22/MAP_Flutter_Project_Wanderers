@@ -1,53 +1,10 @@
 // lib/ui/customer/customer_homepage/view_model/customer_homepage_view_model.dart
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mycrochetbag/firebase_services.dart';
-
-class Bag {
-  final String id; // Firebase document ID
-  final String name;
-  final double price;
-  final List<String> imageUrls;
-  final String category;
-  final String? description;
-  final int? stock;
-  final List<String>? sizes;
-  final String? material;
-  final List<String>? colors;
-
-  Bag({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.imageUrls,
-    required this.category,
-    this.description,
-    this.stock,
-    this.sizes,
-    this.material,
-    this.colors,
-  });
-
-  factory Bag.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    return Bag(
-      id: doc.id,
-      name: data['name'] as String,
-      price: (data['price'] as num).toDouble(),
-      imageUrls: List<String>.from(data['images'] ?? []),
-      category: data['category'] as String,
-      description: data['description'] as String?,
-      stock: data['stock'] as int?,
-      sizes: (data['sizes'] as List?)?.map((e) => e as String).toList(),
-      material: data['material'] as String?,
-      colors: (data['colors'] as List?)?.map((e) => e as String).toList(),
-    );
-  }
-}
+import 'package:mycrochetbag/data/services/bag_service.dart';
+import 'package:mycrochetbag/domain/model/bag.dart';
 
 class CustomerHomepageViewModel extends ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirestoreServices _firestoreServices = FirestoreServices();
+  final FirestoreBagServices _firestoreServices = FirestoreBagServices();
 
   List<Bag> _allBags = [];
   List<Bag> _filteredBags = [];
@@ -109,7 +66,7 @@ class CustomerHomepageViewModel extends ChangeNotifier {
       _applyFilters();
     } catch (e) {
       _errorMessage = "Error fetching bags: $e";
-      print("❌ Error in CustomerHomepageViewModel: $e");
+      print("Error in CustomerHomepageViewModel: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -124,7 +81,7 @@ class CustomerHomepageViewModel extends ChangeNotifier {
           querySnapshot.docs.map((doc) => Bag.fromFirestore(doc)).toList();
     } catch (e) {
       _errorMessage = "Error fetching all bags from Firestore: $e";
-      print("❌ Error fetching all bags for customer: $e");
+      print("Error fetching all bags for customer: $e");
       _allBags = [];
     }
   }

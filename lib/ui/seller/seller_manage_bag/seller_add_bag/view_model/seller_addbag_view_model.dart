@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mycrochetbag/firebase_services.dart';
+import 'package:mycrochetbag/data/services/bag_service.dart';
 
 class SellerAddBagViewModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
@@ -47,7 +47,7 @@ class SellerAddBagViewModel extends ChangeNotifier {
     formKey.currentState!.save();
 
     try {
-      await FirestoreServices().addProduct(
+      await FirestoreBagServices().addProduct(
         imageFiles: images.map((xfile) => File(xfile.path)).toList(),
         name: productName!,
         price: price!,

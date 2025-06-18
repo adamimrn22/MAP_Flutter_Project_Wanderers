@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mycrochetbag/data/services/cart_service.dart';
 import 'package:mycrochetbag/ui/core/themes/themes.dart';
+import 'package:mycrochetbag/ui/customer/customer_view_bag/view_model/cart_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:mycrochetbag/data/services/auth_service.dart';
@@ -22,15 +24,25 @@ Future<void> main() async {
       statusBarColor: Color(0xFF8E4A58), // Ba  For iOS
     ),
   );
+
   final authServices = AuthServices();
+  final cartService = FirestoreCartService();
 
   runApp(
     MultiProvider(
       // Use MultiProvider
       providers: [
         ChangeNotifierProvider(create: (_) => AuthServices()),
-
-        // Add other Providers as needed
+        ChangeNotifierProxyProvider<AuthServices, CartViewModel?>(
+          create: (_) => null,
+          update: (context, authService, previous) {
+            if (authService.currentUser != null) {
+              return CartViewModel(cartService, authService.currentUser!.uid);
+            }
+            previous?.dispose();
+            return null;
+          },
+        ),
       ],
       child: MainApp(authServices: authServices),
     ),

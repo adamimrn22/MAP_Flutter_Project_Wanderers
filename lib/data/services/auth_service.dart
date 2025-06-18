@@ -216,4 +216,31 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
     }
     return null;
   }
+
+  // Reauthenticate user with email and password
+  Future<Result<void>> reauthenticate(String email, String password) async {
+    try {
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: password,
+      );
+      await _auth.currentUser!.reauthenticateWithCredential(credential);
+      return Result.ok(null);
+    } catch (e) {
+      return Result.error(Exception('Reauthenticate failed: $e'));
+    }
+  }
+
+  // Delete account
+  Future<Result<void>> deleteAccount() async {
+    try {
+      if (_auth.currentUser == null) {
+        return Result.error(Exception('No user is signed in'));
+      }
+      await _auth.currentUser!.delete();
+      return Result.ok(null);
+    } catch (e) {
+      return Result.error(Exception('Failed to delete account: $e'));
+    }
+  }
 }

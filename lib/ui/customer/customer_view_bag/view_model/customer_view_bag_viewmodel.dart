@@ -6,7 +6,7 @@ import 'package:mycrochetbag/domain/model/bag.dart';
 class BagDetailViewModel extends ChangeNotifier {
   final FirestoreBagServices _bagService;
   final FirestoreCartService _cartService;
-  final String userId; // User ID for cart operations
+  final String userId;
 
   BagDetailViewModel(this._bagService, this._cartService, this.userId);
 

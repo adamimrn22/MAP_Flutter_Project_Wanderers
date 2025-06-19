@@ -17,7 +17,8 @@ class _CustomerCartScreenState extends State<CustomerCartScreen> {
     super.initState();
     // Load cart items when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CartViewModel>().loadCartItems();
+      final cartViewModel = context.read<CartViewModel?>();
+      cartViewModel?.loadCartItems();
     });
   }
 

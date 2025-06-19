@@ -44,7 +44,7 @@ final ThemeData roseBlushTheme = ThemeData(
     centerTitle: true,
   ),
 
-  cardTheme: const CardTheme(
+  cardTheme: const CardThemeData(
     color: RoseBlushColors.surface,
     elevation: 4,
     margin: EdgeInsets.all(12),
@@ -220,7 +220,7 @@ final ThemeData roseBlushDarkTheme = ThemeData(
     centerTitle: true,
   ),
 
-  cardTheme: const CardTheme(
+  cardTheme: const CardThemeData(
     color: Color(0xFF1E1E1E),
     elevation: 4,
     margin: EdgeInsets.all(12),

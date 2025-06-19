@@ -22,7 +22,7 @@ class SellerAddBagViewModel extends ChangeNotifier {
   final List<String> materials = ['Cotton', 'Wool', 'Canvas'];
 
   Future<void> pickImages() async {
-    final List<XFile>? pickedFiles = await picker.pickMultiImage();
+    final List<XFile> pickedFiles = await picker.pickMultiImage();
     if (pickedFiles != null) {
       images = pickedFiles;
       notifyListeners();

@@ -36,7 +36,7 @@ Future<void> main() async {
 class MainApp extends StatelessWidget {
   final AuthServices authServices;
 
-  const MainApp({Key? key, required this.authServices}) : super(key: key);
+  const MainApp({super.key, required this.authServices});
 
   @override
   Widget build(BuildContext context) {

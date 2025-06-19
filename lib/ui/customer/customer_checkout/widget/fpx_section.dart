@@ -12,15 +12,15 @@ class FpxSectionState extends State<FpxSection> {
 
   final List<Map<String, String>> banks = [
     {'name': 'Maybank', 'code': 'fpx_mb2u'},
-    {'name': 'CIMB Bank', 'code': 'CIMB'},
-    {'name': 'Public Bank', 'code': 'PBB'},
-    {'name': 'RHB Bank', 'code': 'RHB'},
-    {'name': 'Hong Leong Bank', 'code': 'HLB'},
-    {'name': 'AmBank', 'code': 'AMB'},
-    {'name': 'UOB Bank', 'code': 'UOB'},
-    {'name': 'Bank Islam', 'code': 'BIMB'},
-    {'name': 'BSN', 'code': 'BSN'},
-    {'name': 'OCBC Bank', 'code': 'OCBC'},
+    {'name': 'CIMB Bank', 'code': 'fpx_cimbclicks'},
+    {'name': 'Public Bank', 'code': 'fpx_pbb'},
+    {'name': 'RHB Bank', 'code': 'fpx_pbb'},
+    {'name': 'Hong Leong Bank', 'code': 'fpx_hlb'},
+    {'name': 'AmBank', 'code': 'fpx_amb'},
+    {'name': 'UOB Bank', 'code': 'fpx_uob'},
+    {'name': 'Bank Islam', 'code': 'fpx_bimb'},
+    {'name': 'BSN', 'code': 'fpx_bsn'},
+    {'name': 'OCBC Bank', 'code': 'fpx_ocbc'},
   ];
 
   bool validateFields() {

@@ -5,6 +5,7 @@ import 'package:mycrochetbag/ui/authentication/forgot_password/widgets/reset_pas
 import 'package:mycrochetbag/ui/authentication/change_password/widget/change_password_screen.dart';
 import 'package:mycrochetbag/ui/authentication/login/view_model/login_viewmodel.dart';
 import 'package:mycrochetbag/ui/customer/customer_cart/widget/customer_cart_screen.dart';
+import 'package:mycrochetbag/ui/customer/customer_checkout/widget/payment_success_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_order_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/customer_homepage_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_order/widgets/customer_order_screen.dart';
@@ -90,6 +91,10 @@ GoRouter router(AuthServices authServices) => GoRouter(
         GoRoute(
           path: Routes.customerCart,
           builder: (context, state) => const CustomerCartScreen(),
+        ),
+        GoRoute(
+          path: Routes.customerSuccessPayment,
+          builder: (context, state) => const PaymentSuccessScreen(),
         ),
         GoRoute(
           path: Routes.customerOrders,

@@ -19,6 +19,9 @@ dependencies:
   flutter_tabler_icons: ^1.43.0
   image_picker: ^1.0.4
   supabase_flutter: ^2.0.0
+  http: ^1.4.0
+  url_launcher: ^6.3.1
+  app_links: ^6.4.0
 
 dev_dependencies:
   flutter_test:

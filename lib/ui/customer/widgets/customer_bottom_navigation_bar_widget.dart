@@ -27,13 +27,28 @@ class CustomerBottomNavBar extends StatelessWidget {
           label: 'Custom',
         ),
         BottomNavigationBarItem(
-          icon: Consumer<CartViewModel?>(
-            builder: (context, cartViewModel, child) {
-              return BadgedIcon(
-                icon: TablerIcons.shopping_bag,
-                badgeColor: Theme.of(context).primaryColor,
-                badgeCount: cartViewModel?.totalQuantity,
-              );
+          icon: Builder(
+            builder: (context) {
+              try {
+                return Consumer<CartViewModel>(
+                  builder: (context, cartViewModel, child) {
+                    return BadgedIcon(
+                      icon: TablerIcons.shopping_bag,
+                      badgeColor: Theme.of(context).primaryColor,
+                      badgeCount:
+                          cartViewModel.totalQuantity > 0
+                              ? cartViewModel.totalQuantity
+                              : null,
+                    );
+                  },
+                );
+              } catch (e) {
+                return BadgedIcon(
+                  icon: TablerIcons.shopping_bag,
+                  badgeColor: Theme.of(context).primaryColor,
+                  badgeCount: null,
+                );
+              }
             },
           ),
           label: 'Cart',

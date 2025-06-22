@@ -13,6 +13,7 @@ abstract final class Routes {
   static const customerOrders = '/customer/orders';
   static const customerProfile = '/customer/profile';
   static const customerEditProfile = '/customer/edit-profile';
+  static const customerSuccessPayment = '/customer/successPayment';
 
   // Seller Route
   static const sellerHome = '/seller/home';

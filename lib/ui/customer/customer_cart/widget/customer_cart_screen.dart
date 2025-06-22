@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
+import 'package:mycrochetbag/data/model/price_summary.dart';
+import 'package:mycrochetbag/ui/customer/customer_checkout/widget/customer_checkout_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_view_bag/view_model/cart_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mycrochetbag/domain/model/CartItem.dart';
@@ -20,6 +22,30 @@ class _CustomerCartScreenState extends State<CustomerCartScreen> {
       final cartViewModel = context.read<CartViewModel?>();
       cartViewModel?.loadCartItems();
     });
+  }
+
+  void _proceedToCheckout(BuildContext context) {
+    // Access cartViewModel from context
+    final cartViewModel = context.read<CartViewModel>();
+
+    // Create PriceSummary object
+    PriceSummary priceSummary = PriceSummary(
+      subtotal: cartViewModel.totalPrice,
+      deliveryFee: 10.00,
+      processingFee: 5.00,
+      total: cartViewModel.totalPrice + 15.00,
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => CheckoutScreen(
+              priceSummary: priceSummary,
+              cartItems: cartViewModel.cartItems, // Pass the cart items
+            ),
+      ),
+    );
   }
 
   @override
@@ -555,11 +581,5 @@ class _CustomerCartScreenState extends State<CustomerCartScreen> {
         );
       },
     );
-  }
-
-  void _proceedToCheckout(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Proceeding to checkout...')));
   }
 }

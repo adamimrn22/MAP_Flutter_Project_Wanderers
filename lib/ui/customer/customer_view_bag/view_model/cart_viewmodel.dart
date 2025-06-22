@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycrochetbag/data/services/cart_service.dart';
 import 'dart:async';
-
 import 'package:mycrochetbag/domain/model/CartItem.dart';
 
 class CartViewModel extends ChangeNotifier {

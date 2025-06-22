@@ -243,4 +243,13 @@ class AuthServices extends ChangeNotifier implements AuthRepository {
       return Result.error(Exception('Failed to delete account: $e'));
     }
   }
+
+  String getCurrentUserId() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      return user.uid; // Get the current user's UID
+    } else {
+      return 'No user is currently logged in'; // Handle case where no user is logged in
+    }
+  }
 }

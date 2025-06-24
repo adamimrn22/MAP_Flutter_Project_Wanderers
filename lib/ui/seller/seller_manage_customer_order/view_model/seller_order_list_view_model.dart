@@ -28,6 +28,7 @@ class SellerOrderListViewModel extends ChangeNotifier {
   }
 
   // Getters for UI
+  List<Order> get allOrders => _allOrders; // This is the new public getter
   List<Order> get filteredOrders => _filteredOrders;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -82,10 +83,6 @@ class SellerOrderListViewModel extends ChangeNotifier {
     // However, given the structure, 'sellerId' as a dedicated field is ideal.
     _orderSubscription = _firestore
         .collection('orders')
-        // Using 'where('sellerId', isEqualTo: _currentSellerUid!)'
-        // This requires 'sellerId' field in the order document and a composite index.
-        // For demonstration, if 'sellerId' isn't added, you might use 'userId' if seller and user UIDs are interchangeable or for testing.
-        // But for actual seller orders, a dedicated 'sellerId' field is crucial.
         .where(
           'sellerId',
           isEqualTo: _currentSellerUid!,

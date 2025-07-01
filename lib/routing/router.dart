@@ -10,7 +10,7 @@ import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_
 import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/customer_homepage_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_order/widgets/customer_order_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/seller_homepage_screen.dart';
-import 'package:mycrochetbag/ui/seller/seller_order/widget/seller_order_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_manage_customer_order/widgets/seller_order_list_screen.dart'; // Correct for seller order list
 import 'package:mycrochetbag/ui/seller/seller_product/widget/seller_product_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_profile/seller_profile_screen.dart';
 import 'package:provider/provider.dart';
@@ -174,7 +174,9 @@ GoRouter router(AuthServices authServices) => GoRouter(
         ),
         GoRoute(
           path: Routes.sellerOrders, // /seller/order
-          builder: (context, state) => const SellerOrderScreen(),
+          builder:
+              (context, state) =>
+                  const SellerOrderListScreen(), // This is the screen for customer orders list
         ),
         GoRoute(
           path: Routes.sellerProfile, // /seller/profile

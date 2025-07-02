@@ -10,7 +10,8 @@ import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_
 import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/customer_homepage_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_order/widgets/customer_order_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/seller_homepage_screen.dart';
-import 'package:mycrochetbag/ui/seller/seller_manage_customer_order/widgets/seller_order_list_screen.dart'; // Correct for seller order list
+import 'package:mycrochetbag/ui/seller/seller_manage_customer_order/widgets/saller_manage_order_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_manage_customer_order/widgets/seller_manage_order_detail_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_product/widget/seller_product_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_profile/seller_profile_screen.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +40,7 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 GoRouter router(AuthServices authServices) => GoRouter(
   navigatorKey: _rootNavigatorKey,
   redirect: buildRedirect(authServices),
-  initialLocation: Routes.login,
+  initialLocation: Routes.sellerManageOrderDetail,
   debugLogDiagnostics: true,
   refreshListenable: authServices,
   routes: [
@@ -174,10 +175,20 @@ GoRouter router(AuthServices authServices) => GoRouter(
         ),
         GoRoute(
           path: Routes.sellerOrders, // /seller/order
-          builder:
-              (context, state) =>
-                  const SellerOrderListScreen(), // This is the screen for customer orders list
+          builder: (context, state) => const SallerManageOrderScreen(),
         ),
+        GoRoute(
+          path: Routes.sellerManageOrderDetail,
+          builder: (context, state) {
+            final userId = state.pathParameters['userId']!;
+            final orderId = state.pathParameters['orderId']!;
+            return SellerManageOrderDetailScreen(
+              userId: userId,
+              orderId: orderId,
+            );
+          },
+        ),
+
         GoRoute(
           path: Routes.sellerProfile, // /seller/profile
           builder: (context, state) => const SellerProfileScreen(),

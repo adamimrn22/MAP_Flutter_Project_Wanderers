@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/data/services/manage_order_service.dart';
 import 'package:mycrochetbag/domain/model/CustomerOrder.dart';
-import 'package:mycrochetbag/domain/model/OrderItem.dart';
-import 'package:mycrochetbag/routing/routes.dart';
 
 class SallerManageOrderScreen extends StatefulWidget {
   const SallerManageOrderScreen({super.key});
@@ -325,7 +323,7 @@ class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
         title: Text('Order Details'),
         actions: [
           IconButton(
-            icon: Icon(Icons.search, color: Colors.black),
+            icon: Icon(Icons.search, color: Colors.white),
             onPressed: () {
               setState(() {
                 _isSearching = !_isSearching;
@@ -336,11 +334,11 @@ class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
             },
           ),
           IconButton(
-            icon: Icon(Icons.filter_list, color: Colors.black),
+            icon: Icon(Icons.filter_list, color: Colors.white),
             onPressed: _showFilterDialog,
           ),
           IconButton(
-            icon: Icon(Icons.refresh, color: Colors.black),
+            icon: Icon(Icons.refresh, color: Colors.white),
             onPressed: _loadOrders,
           ),
         ],

@@ -541,7 +541,7 @@ class OrderCard extends StatelessWidget {
       case OrderStatus.delivered:
         return "The seller has sent your order";
       case OrderStatus.cancelled:
-        return "Your order has been cancelled your order";
+        return "Your order has been cancelled";
     }
   }
 

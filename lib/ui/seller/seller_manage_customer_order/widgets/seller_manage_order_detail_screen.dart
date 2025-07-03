@@ -131,7 +131,7 @@ class _SellerManageOrderDetailScreenState
                             ),
                             _buildInfoRow(
                               'Total Amount',
-                              '${viewModel.order?.amount}',
+                              '${viewModel.order?.amount.toStringAsFixed(2)}',
                             ),
                           ],
                         ),
@@ -230,7 +230,7 @@ class _SellerManageOrderDetailScreenState
                                           ),
                                         ),
                                         Text(
-                                          '\$${viewModel.order!.amount.toStringAsFixed(2)}',
+                                          'RM ${viewModel.order!.amount.toStringAsFixed(2)}',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
@@ -415,7 +415,7 @@ class _SellerManageOrderDetailScreenState
           ),
         ),
         Text(
-          '\$${(price * quantity).toStringAsFixed(2)}',
+          'RM ${(price * quantity).toStringAsFixed(2)}',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
       ],

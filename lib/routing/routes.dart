@@ -8,7 +8,7 @@ abstract final class Routes {
 
   // Customer Route
   static const customerHome = '/customer/home';
-  static const customerCustomOrder = '/customer/custom';
+  //static const customerCustomOrder = '/customer/custom';
   static const customerCart = '/customer/carts';
   static const customerOrders = '/customer/orders';
   static const customerProfile = '/customer/profile';

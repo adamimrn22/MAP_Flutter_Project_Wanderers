@@ -6,7 +6,7 @@ import 'package:mycrochetbag/ui/authentication/change_password/widget/change_pas
 import 'package:mycrochetbag/ui/authentication/login/view_model/login_viewmodel.dart';
 import 'package:mycrochetbag/ui/customer/customer_cart/widget/customer_cart_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_checkout/widget/payment_success_screen.dart';
-import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_order_screen.dart';
+//import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_order_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_homepage/home/widgets/customer_homepage_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_order/widgets/customer_order_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_homepage/widgets/seller_homepage_screen.dart';
@@ -85,10 +85,10 @@ GoRouter router(AuthServices authServices) => GoRouter(
           path: Routes.customerHome,
           builder: (context, state) => const CustomerHomepageScreen(),
         ),
-        GoRoute(
-          path: Routes.customerCustomOrder,
-          builder: (context, state) => const CustomerCustomOrderScreen(),
-        ),
+        // GoRoute(
+        //   path: Routes.customerCustomOrder,
+        //   builder: (context, state) => const CustomerCustomOrderScreen(),
+        // ),
         GoRoute(
           path: Routes.customerCart,
           builder: (context, state) => const CustomerCartScreen(),

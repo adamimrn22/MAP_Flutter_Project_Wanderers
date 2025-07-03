@@ -42,15 +42,13 @@ class CustomerNavigationProvider extends ChangeNotifier {
 
   static const _routeIndices = {
     Routes.customerHome: 0,
-    Routes.customerCustomOrder: 1,
-    Routes.customerCart: 2,
-    Routes.customerOrders: 3,
-    Routes.customerProfile: 4,
+    Routes.customerCart: 1,
+    Routes.customerOrders: 2,
+    Routes.customerProfile: 3,
   };
 
   static const _indexRoutes = [
     Routes.customerHome,
-    Routes.customerCustomOrder,
     Routes.customerCart,
     Routes.customerOrders,
     Routes.customerProfile,

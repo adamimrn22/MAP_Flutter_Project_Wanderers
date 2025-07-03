@@ -22,10 +22,6 @@ class CustomerBottomNavBar extends StatelessWidget {
           icon: Icon(TablerIcons.home),
           label: 'Home',
         ),
-        const BottomNavigationBarItem(
-          icon: Icon(TablerIcons.briefcase),
-          label: 'Custom',
-        ),
         BottomNavigationBarItem(
           icon: Builder(
             builder: (context) {

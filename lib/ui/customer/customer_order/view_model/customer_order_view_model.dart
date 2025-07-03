@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycrochetbag/domain/model/Order.dart';
-import 'package:mycrochetbag/data/services/order_service.dart';
+import 'package:mycrochetbag/data/services/customer_order_service.dart';
 
 class CustomerOrderViewModel extends ChangeNotifier {
   final OrderService _orderService = OrderService();

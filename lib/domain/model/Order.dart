@@ -97,19 +97,19 @@ class OrderItemDetail {
     print("  - id: $id");
     print("  - itemId: $itemId");
     print("  - cartItem.name: ${cartItem.name}");
-    print("  - cartItem.imageUrl: ${cartItem.imageUrl ?? 'NULL'}");
+    print("  - cartItem.imageUrl: ${cartItem.imageUrl}");
     print("  - cartItem.price: ${cartItem.price}");
     print("  - cartItem.quantity: ${cartItem.quantity}");
     
     return OrderItemDetail(
-      color: cartItem.color ?? '',
+      color: cartItem.color,
       id: id,
       itemId: itemId,
-      name: cartItem.name ?? '',
-      price: cartItem.price ?? 0.0,
-      quantity: cartItem.quantity ?? 0,
-      size: cartItem.size ?? '',
-      imageUrl: cartItem.imageUrl ?? '', // This should capture the imageUrl from CartItem
+      name: cartItem.name,
+      price: cartItem.price,
+      quantity: cartItem.quantity,
+      size: cartItem.size,
+      imageUrl: cartItem.imageUrl, // This should capture the imageUrl from CartItem
     );
   }
 
@@ -233,7 +233,7 @@ class OrderModel {
   }) {
     print("DEBUG: Creating OrderModel from ${cartItems.length} cart items");
     
-    double totalAmount = cartItems.fold(0, (sum, item) => sum + (item.totalPrice ?? 0));
+    double totalAmount = cartItems.fold(0, (sum, item) => sum + (item.totalPrice));
     
     List<OrderItemDetail> orderItems = cartItems.asMap().entries.map((entry) {
       int index = entry.key;
@@ -241,12 +241,12 @@ class OrderModel {
       
       print("DEBUG: Processing cart item $index:");
       print("  - name: ${cartItem.name}");
-      print("  - imageUrl: ${cartItem.imageUrl ?? 'NULL'}");
-      print("  - productId: ${cartItem.productId ?? 'NULL'}");
+      print("  - imageUrl: ${cartItem.imageUrl}");
+      print("  - productId: ${cartItem.productId}");
       
       return OrderItemDetail.fromCartItem(
         index.toString(), 
-        cartItem.productId ?? '',
+        cartItem.productId,
         cartItem,
       );
     }).toList();

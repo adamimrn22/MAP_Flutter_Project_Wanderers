@@ -237,10 +237,81 @@ class OrderCard extends StatelessWidget {
 
   const OrderCard({super.key, required this.order});
 
+  void _showOrderDetailPopup(BuildContext context, OrderModel order) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+        color: Colors.white,
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Center(
+                  child: Text(
+                    "Order Detail",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                const Text("Ordered Items", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 8),
+
+                // List of order items
+                ...order.orderItems.map((item) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text("Size: ${item.size}"),
+                      Text("Color: ${item.color}"),
+                      Text("Quantity: ${item.quantity}"),
+                      Text("Total: RM ${(item.price * item.quantity).toStringAsFixed(2)}"),
+                    ],
+                  ),
+                )),
+
+                const Divider(height: 32),
+
+                const Text("Payment Information", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 8),
+                Text("Total Price: RM ${order.amount.toStringAsFixed(2)}"),
+                Text("Payment Status: Paid"),
+                Text("Payment Method: ${order.paymentType}"),
+
+                const Divider(height: 32),
+
+                const Text("Order Status", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 8),
+                Text(
+                  _getOrderStatusMessage(order.orderStatus),
+                  style: TextStyle(
+                    color: _getStatusColor(order.orderStatus),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
+    return GestureDetector(
+      onTap: () => _showOrderDetailPopup(context, order),
+      child: Container(
+        padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: order.orderStatus == OrderStatus.cancelled 
             ? Colors.grey[100] 
@@ -388,6 +459,7 @@ class OrderCard extends StatelessWidget {
           ],
         ],
       ),
+    )
     );
   }
 
@@ -417,6 +489,17 @@ class OrderCard extends StatelessWidget {
         return 'Cancelled';
     }
   }
+
+  String _getOrderStatusMessage(OrderStatus status) {
+  switch (status) {
+    case OrderStatus.processing:
+      return "The seller will send your order";
+    case OrderStatus.delivered:
+      return "The seller has sent your order";
+    case OrderStatus.cancelled:
+      return "The seller has cancelled your order";
+  }
+}
 
   Color _getStatusColor(OrderStatus status) {
     switch (status) {

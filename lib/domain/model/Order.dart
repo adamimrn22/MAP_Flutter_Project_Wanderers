@@ -237,13 +237,7 @@ class OrderModel {
     
     List<OrderItemDetail> orderItems = cartItems.asMap().entries.map((entry) {
       int index = entry.key;
-      CartItem cartItem = entry.value;
-      
-      print("DEBUG: Processing cart item $index:");
-      print("  - name: ${cartItem.name}");
-      print("  - imageUrl: ${cartItem.imageUrl}");
-      print("  - productId: ${cartItem.productId}");
-      
+      CartItem cartItem = entry.value;    
       return OrderItemDetail.fromCartItem(
         index.toString(), 
         cartItem.productId,
@@ -293,7 +287,7 @@ class OrderModel {
       id: doc.id,
       address: Address.fromMap(data['address'] ?? {}),
       amount: (data['amount'] ?? 0).toDouble(),
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: data['createdAt'] != null ? (data['createdAt'] as Timestamp).toDate(): DateTime.now(),
       merchantReference: data['merchantReference'] ?? '',
       orderItems: (data['orders'] as List<dynamic>? ?? [])
           .map((item) => OrderItemDetail.fromMap(item as Map<String, dynamic>))

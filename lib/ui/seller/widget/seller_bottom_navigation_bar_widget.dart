@@ -26,6 +26,10 @@ class SellerBottomNavBar extends StatelessWidget {
           label: 'Order',
         ),
         BottomNavigationBarItem(
+          icon: Icon(TablerIcons.chart_bar),
+          label: 'Analytics',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(TablerIcons.user_circle),
           label: 'Me',
         ),

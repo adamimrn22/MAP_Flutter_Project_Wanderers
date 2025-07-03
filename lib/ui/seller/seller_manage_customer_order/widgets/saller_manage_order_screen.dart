@@ -16,16 +16,29 @@ class SallerManageOrderScreen extends StatefulWidget {
 class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<CustomerOrder> _orders = [];
+  final TextEditingController _searchController = TextEditingController();
+
+  // Data lists
+  List<CustomerOrder> _allOrders = [];
   List<CustomerOrder> _filteredOrders = [];
+  List<CustomerOrder> _displayedOrders = [];
+
+  // State variables
   bool _isLoading = false;
   String? _error;
+  bool _isSearching = false;
+
+  // Filter options
+  String _sortBy = 'date'; // date, amount, status
+  bool _sortAscending = false;
+  DateTimeRange? _dateRange;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(_onTabChanged);
+    _searchController.addListener(_onSearchChanged);
     _loadOrders();
   }
 
@@ -33,6 +46,7 @@ class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
   void dispose() {
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -40,6 +54,10 @@ class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
     if (_tabController.indexIsChanging) {
       _filterOrders(_tabController.index);
     }
+  }
+
+  void _onSearchChanged() {
+    _applySearchAndFilters();
   }
 
   Future<void> _loadOrders() async {
@@ -52,10 +70,12 @@ class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
       final orders = await ManageOrderService.getAllOrders();
       print("all order $orders");
       setState(() {
-        // _orders = orders;
+        _allOrders = orders;
         _filteredOrders = orders;
+        _displayedOrders = orders;
         _isLoading = false;
       });
+      _applySearchAndFilters();
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -73,34 +93,228 @@ class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
       List<CustomerOrder> filtered;
       switch (tabIndex) {
         case 0: // All
-          filtered = await ManageOrderService.getAllOrders();
+          filtered = _allOrders;
           break;
-        case 1: // Paid because we dont want pending because pending is still not confirmed
-          filtered = await ManageOrderService.getOrdersByStatus("paid");
+        case 1: // Paid
+          filtered =
+              _allOrders
+                  .where((order) => order.status.toLowerCase() == "paid")
+                  .toList();
           break;
-        case 2: // Shipped (Shipped orders)
-          filtered = await ManageOrderService.getOrdersByStatus("shipped");
+        case 2: // Shipped
+          filtered =
+              _allOrders
+                  .where((order) => order.status.toLowerCase() == "shipped")
+                  .toList();
           break;
-        case 3: // Cancelled
-          filtered = await ManageOrderService.getOrdersByStatus("completed");
+        case 3: // Completed
+          filtered =
+              _allOrders
+                  .where((order) => order.status.toLowerCase() == "completed")
+                  .toList();
           break;
         case 4: // Cancelled
-          filtered = await ManageOrderService.getOrdersByStatus("cancelled");
+          filtered =
+              _allOrders
+                  .where((order) => order.status.toLowerCase() == "cancelled")
+                  .toList();
           break;
         default:
-          filtered = _orders;
+          filtered = _allOrders;
       }
 
       setState(() {
         _filteredOrders = filtered;
         _isLoading = false;
       });
+      _applySearchAndFilters();
     } catch (e) {
       setState(() {
         _error = e.toString();
         _isLoading = false;
       });
     }
+  }
+
+  void _applySearchAndFilters() {
+    List<CustomerOrder> result = List.from(_filteredOrders);
+
+    // Apply search filter
+    if (_searchController.text.isNotEmpty) {
+      final searchTerm = _searchController.text.toLowerCase();
+      result =
+          result.where((order) {
+            // Search by order ID
+            if (order.id.toLowerCase().contains(searchTerm)) return true;
+
+            // Search by product names
+            for (var item in order.orders) {
+              if (item.name.toLowerCase().contains(searchTerm)) return true;
+            }
+
+            // Search by amount
+            if (order.amount.toString().contains(searchTerm)) return true;
+
+            // Search by status
+            if (order.status.toLowerCase().contains(searchTerm)) return true;
+
+            return false;
+          }).toList();
+    }
+
+    // Apply date range filter
+    if (_dateRange != null) {
+      result =
+          result.where((order) {
+            return order.createdAt.isAfter(
+                  _dateRange!.start.subtract(Duration(days: 1)),
+                ) &&
+                order.createdAt.isBefore(
+                  _dateRange!.end.add(Duration(days: 1)),
+                );
+          }).toList();
+    }
+
+    // Apply sorting
+    result.sort((a, b) {
+      int comparison = 0;
+      switch (_sortBy) {
+        case 'date':
+          comparison = a.createdAt.compareTo(b.createdAt);
+          break;
+        case 'amount':
+          comparison = a.amount.compareTo(b.amount);
+          break;
+        case 'status':
+          comparison = a.status.compareTo(b.status);
+          break;
+      }
+      return _sortAscending ? comparison : -comparison;
+    });
+
+    setState(() {
+      _displayedOrders = result;
+    });
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => AlertDialog(
+                  title: Text('Filter & Sort'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Sort by section
+                      Text(
+                        'Sort by:',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(height: 8),
+                      DropdownButton<String>(
+                        value: _sortBy,
+                        isExpanded: true,
+                        items: [
+                          DropdownMenuItem(value: 'date', child: Text('Date')),
+                          DropdownMenuItem(
+                            value: 'amount',
+                            child: Text('Amount'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'status',
+                            child: Text('Status'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setDialogState(() {
+                            _sortBy = value!;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _sortAscending,
+                            onChanged: (value) {
+                              setDialogState(() {
+                                _sortAscending = value!;
+                              });
+                            },
+                          ),
+                          Text('Ascending'),
+                        ],
+                      ),
+                      SizedBox(height: 16),
+
+                      // Date range section
+                      Text(
+                        'Date Range:',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () async {
+                                final range = await showDateRangePicker(
+                                  context: context,
+                                  firstDate: DateTime(2020),
+                                  lastDate: DateTime.now(),
+                                  initialDateRange: _dateRange,
+                                );
+                                if (range != null) {
+                                  setDialogState(() {
+                                    _dateRange = range;
+                                  });
+                                }
+                              },
+                              child: Text(
+                                _dateRange == null
+                                    ? 'Select Date Range'
+                                    : '${_dateRange!.start.day}/${_dateRange!.start.month} - ${_dateRange!.end.day}/${_dateRange!.end.month}',
+                              ),
+                            ),
+                          ),
+                          if (_dateRange != null)
+                            IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                setDialogState(() {
+                                  _dateRange = null;
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          // Apply filters
+                        });
+                        _applySearchAndFilters();
+                        Navigator.pop(context);
+                      },
+                      child: Text('Apply'),
+                    ),
+                  ],
+                ),
+          ),
+    );
   }
 
   @override
@@ -111,30 +325,80 @@ class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
         title: Text('Order Details'),
         actions: [
           IconButton(
+            icon: Icon(Icons.search, color: Colors.black),
+            onPressed: () {
+              setState(() {
+                _isSearching = !_isSearching;
+                if (!_isSearching) {
+                  _searchController.clear();
+                }
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.filter_list, color: Colors.black),
+            onPressed: _showFilterDialog,
+          ),
+          IconButton(
             icon: Icon(Icons.refresh, color: Colors.black),
             onPressed: _loadOrders,
           ),
         ],
-        bottom: TabBar(
-          isScrollable: true,
-          controller: _tabController,
-          labelColor: Colors.white, // ✅ Active tab text color
-          unselectedLabelColor: Colors.grey[200], // Inactive tab text color
-          indicatorColor: Colors.white, // ✅ Bottom line indicator color
-          indicatorWeight: 2,
-          labelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          unselectedLabelStyle: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.normal,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(_isSearching ? 108 : 48),
+          child: Column(
+            children: [
+              if (_isSearching)
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search by order ID, product name, amount...',
+                      prefixIcon: Icon(Icons.search),
+                      suffixIcon:
+                          _searchController.text.isNotEmpty
+                              ? IconButton(
+                                icon: Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                },
+                              )
+                              : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+              TabBar(
+                isScrollable: true,
+                controller: _tabController,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.grey[200],
+                indicatorColor: Colors.white,
+                indicatorWeight: 2,
+                labelStyle: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+                unselectedLabelStyle: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                ),
+                padding: EdgeInsets.zero,
+                tabs: const [
+                  Tab(text: 'All'),
+                  Tab(text: 'Pending'),
+                  Tab(text: 'Shipped'),
+                  Tab(text: 'Completed'),
+                  Tab(text: 'Cancelled'),
+                ],
+              ),
+            ],
           ),
-          padding: EdgeInsets.zero,
-          tabs: const [
-            Tab(text: 'All'),
-            Tab(text: 'Pending'),
-            Tab(text: 'Shipped'),
-            Tab(text: 'Completed'),
-            Tab(text: 'Cancelled'),
-          ],
         ),
       ),
       body: _buildBody(),
@@ -170,29 +434,69 @@ class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
       );
     }
 
-    if (_filteredOrders.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('No orders found'),
-          ],
-        ),
-      );
-    }
+    return Column(
+      children: [
+        // Results summary
+        if (_searchController.text.isNotEmpty || _dateRange != null)
+          Container(
+            padding: EdgeInsets.all(16),
+            color: Colors.blue[50],
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, size: 16, color: Colors.blue),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Found ${_displayedOrders.length} orders',
+                    style: TextStyle(color: Colors.blue[700], fontSize: 14),
+                  ),
+                ),
+                if (_searchController.text.isNotEmpty || _dateRange != null)
+                  TextButton(
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        _dateRange = null;
+                      });
+                      _applySearchAndFilters();
+                    },
+                    child: Text('Clear'),
+                  ),
+              ],
+            ),
+          ),
 
-    return RefreshIndicator(
-      onRefresh: _loadOrders,
-      child: ListView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: _filteredOrders.length,
-        itemBuilder: (context, index) {
-          final order = _filteredOrders[index];
-          return _buildOrderCard(order);
-        },
-      ),
+        // Orders list
+        Expanded(
+          child:
+              _displayedOrders.isEmpty
+                  ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.shopping_bag_outlined,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 16),
+                        Text('No orders found'),
+                      ],
+                    ),
+                  )
+                  : RefreshIndicator(
+                    onRefresh: _loadOrders,
+                    child: ListView.builder(
+                      padding: EdgeInsets.all(16),
+                      itemCount: _displayedOrders.length,
+                      itemBuilder: (context, index) {
+                        final order = _displayedOrders[index];
+                        return _buildOrderCard(order);
+                      },
+                    ),
+                  ),
+        ),
+      ],
     );
   }
 

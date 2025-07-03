@@ -14,6 +14,7 @@ import 'package:mycrochetbag/ui/seller/seller_manage_customer_order/widgets/sall
 import 'package:mycrochetbag/ui/seller/seller_manage_customer_order/widgets/seller_manage_order_detail_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_product/widget/seller_product_screen.dart';
 import 'package:mycrochetbag/ui/seller/seller_profile/seller_profile_screen.dart';
+import 'package:mycrochetbag/ui/seller/seller_sales_analysis/widgets/seller_sales_analysis_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mycrochetbag/data/services/auth_service.dart';
 import 'package:mycrochetbag/data/services/manage_user_service.dart';
@@ -187,6 +188,10 @@ GoRouter router(AuthServices authServices) => GoRouter(
               orderId: orderId,
             );
           },
+        ),
+        GoRoute(
+          path: Routes.sellerSalesAnalysis, // /seller/order
+          builder: (context, state) => const SalesAnalysisScreen(),
         ),
 
         GoRoute(

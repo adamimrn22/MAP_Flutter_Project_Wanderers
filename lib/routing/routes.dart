@@ -24,6 +24,7 @@ abstract final class Routes {
   static const sellerEditBag = '/seller/edit-bag';
   static const sellerPreviewBag = '/seller/preview-bag';
   static const sellerManageOrderDetail = '/seller/order/:userId/:orderId';
+  static const sellerSalesAnalysis = '/seller/sales-analysis';
 
   // Admin Route
   static const adminHome = '/admin/home';

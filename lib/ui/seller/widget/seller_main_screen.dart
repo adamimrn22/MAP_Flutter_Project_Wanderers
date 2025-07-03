@@ -44,13 +44,15 @@ class SellerNavigationProvider extends ChangeNotifier {
     Routes.sellerHome: 0,
     Routes.sellerProduct: 1,
     Routes.sellerOrders: 2,
-    Routes.sellerProfile: 3,
+    Routes.sellerSalesAnalysis: 3,
+    Routes.sellerProfile: 4,
   };
 
   static const _indexRoutes = [
     Routes.sellerHome,
     Routes.sellerProduct,
     Routes.sellerOrders,
+    Routes.sellerSalesAnalysis,
     Routes.sellerProfile,
   ];
 

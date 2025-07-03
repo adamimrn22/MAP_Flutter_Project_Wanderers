@@ -25,17 +25,7 @@ class ViewAllUserScreen extends StatelessWidget {
     final users = viewModel.users;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("List of all users"),
-        actions: [
-          IconButton(
-            icon: Icon(TablerIcons.circle_plus),
-            onPressed: () {
-              print('Add button pressed');
-            },
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text("List of all users")),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

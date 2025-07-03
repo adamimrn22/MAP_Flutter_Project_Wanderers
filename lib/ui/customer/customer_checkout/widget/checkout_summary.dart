@@ -4,11 +4,13 @@ import 'package:mycrochetbag/data/model/price_summary.dart';
 class CheckoutSummary extends StatelessWidget {
   final PriceSummary priceSummary;
   final VoidCallback onPayPressed;
+  final bool isLoading;
 
   const CheckoutSummary({
     super.key,
     required this.priceSummary,
     required this.onPayPressed,
+    this.isLoading = false,
   });
 
   @override
@@ -73,7 +75,7 @@ class CheckoutSummary extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: onPayPressed,
+                onPressed: isLoading ? null : onPayPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,

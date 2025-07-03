@@ -439,7 +439,7 @@ class OrderCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'ORDER ID : ${order.merchantReference}',
+                        'ORDER ID : ${order.id.toUpperCase()}',
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,

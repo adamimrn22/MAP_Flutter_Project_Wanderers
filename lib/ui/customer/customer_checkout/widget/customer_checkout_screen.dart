@@ -176,6 +176,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   CheckoutSummary(
                     priceSummary: widget.priceSummary,
                     onPayPressed: _processPayment,
+                    isLoading: _isProcessingPayment,
                   ),
                 ],
               ),

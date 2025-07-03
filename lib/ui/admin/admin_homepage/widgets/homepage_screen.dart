@@ -201,7 +201,6 @@ class _AdminHomepageScreenState extends State<AdminHomepageScreen> {
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
-              Icon(Icons.more_vert, color: Colors.grey[400], size: 20),
             ],
           ),
           const SizedBox(height: 16),

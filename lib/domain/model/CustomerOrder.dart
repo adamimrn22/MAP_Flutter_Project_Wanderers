@@ -57,7 +57,7 @@ class CustomerOrder {
       status: data['status'] ?? 'pending',
       updatedAt: parseTimestamp(data['updatedAt']),
       userId: data['userId'] ?? '',
-      trackingId: data['trackingId'] as String?, // nullable
+      trackingId: data['trackingNumber'] as String?, // nullable
       cancelReason: data['cancelReason'] as String?, // nullable
     );
   }

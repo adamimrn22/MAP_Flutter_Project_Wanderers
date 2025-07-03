@@ -18,10 +18,10 @@ class _CustomerOrderScreenState extends State<CustomerOrderScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _viewModel = CustomerOrderViewModel();
     _viewModel.init();
-    
+
     // Listen to tab changes to filter orders
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
@@ -43,12 +43,15 @@ class _CustomerOrderScreenState extends State<CustomerOrderScreen>
         _viewModel.filterOrders(null); // All orders
         break;
       case 1:
-        _viewModel.filterOrders(OrderStatus.processing);
+        _viewModel.filterOrders(OrderStatus.paid);
         break;
       case 2:
-        _viewModel.filterOrders(OrderStatus.delivered);
+        _viewModel.filterOrders(OrderStatus.shipped);
         break;
       case 3:
+        _viewModel.filterOrders(OrderStatus.delivered);
+        break;
+      case 4:
         _viewModel.filterOrders(OrderStatus.cancelled);
         break;
     }
@@ -90,6 +93,7 @@ class _CustomerOrderScreenState extends State<CustomerOrderScreen>
                   color: Colors.white,
                   child: TabBar(
                     controller: _tabController,
+                    isScrollable: true,
                     labelColor: Colors.black,
                     unselectedLabelColor: Colors.grey[600],
                     indicatorColor: Colors.black,
@@ -103,29 +107,37 @@ class _CustomerOrderScreenState extends State<CustomerOrderScreen>
                       fontWeight: FontWeight.normal,
                     ),
                     tabs: [
+                      Tab(text: 'All (${viewModel.totalOrdersCount})'),
                       Tab(
-                        text: 'All (${viewModel.totalOrdersCount})',
+                        text:
+                            'Processing (${viewModel.getOrdersCountByStatus(OrderStatus.paid)})',
                       ),
                       Tab(
-                        text: 'Processing (${viewModel.getOrdersCountByStatus(OrderStatus.processing)})',
+                        text:
+                            'Shipped (${viewModel.getOrdersCountByStatus(OrderStatus.shipped)})',
                       ),
                       Tab(
-                        text: 'Delivered (${viewModel.getOrdersCountByStatus(OrderStatus.delivered)})',
+                        text:
+                            'Delivered (${viewModel.getOrdersCountByStatus(OrderStatus.delivered)})',
                       ),
                       Tab(
-                        text: 'Cancelled (${viewModel.getOrdersCountByStatus(OrderStatus.cancelled)})',
+                        text:
+                            'Cancelled (${viewModel.getOrdersCountByStatus(OrderStatus.cancelled)})',
                       ),
                     ],
                   ),
                 ),
                 // Content
                 Expanded(
-                  child: viewModel.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : RefreshIndicator(
-                          onRefresh: viewModel.refreshOrders,
-                          child: OrderListView(orders: viewModel.filteredOrders),
-                        ),
+                  child:
+                      viewModel.isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : RefreshIndicator(
+                            onRefresh: viewModel.refreshOrders,
+                            child: OrderListView(
+                              orders: viewModel.filteredOrders,
+                            ),
+                          ),
                 ),
               ],
             );
@@ -140,11 +152,7 @@ class _CustomerOrderScreenState extends State<CustomerOrderScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'Failed to load orders',
@@ -157,10 +165,7 @@ class _CustomerOrderScreenState extends State<CustomerOrderScreen>
           const SizedBox(height: 8),
           Text(
             viewModel.error ?? 'Unknown error occurred',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -193,11 +198,7 @@ class OrderListView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.shopping_bag_outlined,
-              size: 64,
-              color: Colors.grey,
-            ),
+            Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
               'No orders found',
@@ -210,10 +211,7 @@ class OrderListView extends StatelessWidget {
             SizedBox(height: 8),
             Text(
               'Your orders will appear here',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
           ],
         ),
@@ -247,7 +245,7 @@ class OrderCard extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-        color: Colors.white,
+          color: Colors.white,
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: Column(
@@ -261,27 +259,39 @@ class OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                const Text("Ordered Items", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  "Ordered Items",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 const SizedBox(height: 8),
 
-                // List of order items
-                ...order.orderItems.map((item) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(item.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      Text("Size: ${item.size}"),
-                      Text("Color: ${item.color}"),
-                      Text("Quantity: ${item.quantity}"),
-                      Text("Total: RM ${(item.price * item.quantity).toStringAsFixed(2)}"),
-                    ],
+                ...order.orders.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.name,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        Text("Size: ${item.size}"),
+                        Text("Color: ${item.color}"),
+                        Text("Quantity: ${item.quantity}"),
+                        Text(
+                          "Total: RM ${(item.price * item.quantity).toStringAsFixed(2)}",
+                        ),
+                      ],
+                    ),
                   ),
-                )),
+                ),
 
                 const Divider(height: 32),
 
-                const Text("Payment Information", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  "Payment Information",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 const SizedBox(height: 8),
                 Text("Total Price: RM ${order.amount.toStringAsFixed(2)}"),
                 Text("Payment Status: Paid"),
@@ -289,15 +299,31 @@ class OrderCard extends StatelessWidget {
 
                 const Divider(height: 32),
 
-                const Text("Order Status", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  "Order Status",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   _getOrderStatusMessage(order.orderStatus),
                   style: TextStyle(
-                    color: _getStatusColor(order.orderStatus),
+                    color: _getStatusColor(order.status),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (order.orderStatus == OrderStatus.shipped)
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(color: Colors.grey, fontSize: 16),
+                      children: [
+                        const TextSpan(text: 'Tracking ID: '),
+                        TextSpan(
+                          text: order.trackingId ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
@@ -312,154 +338,166 @@ class OrderCard extends StatelessWidget {
       onTap: () => _showOrderDetailPopup(context, order),
       child: Container(
         padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: order.orderStatus == OrderStatus.cancelled 
-            ? Colors.grey[100] 
-            : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _getStatusTitle(order.orderStatus),
-                    style: TextStyle(
-                      color: _getStatusColor(order.orderStatus),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    order.displayDate,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              TextButton(
-                onPressed: () {
-                  context.read<CustomerOrderViewModel>().trackOrder(order.id);
-                },
-                child: const Text(
-                  'Track',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Order details row
-          Row(
-            children: [
-              // Product image
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: order.mainProductImageUrl.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        order.mainProductImageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return _buildPlaceholderImage();
-                        },
-                      ),
-                    )
-                  : _buildPlaceholderImage(),
-              ),
-              const SizedBox(width: 16),
-              // Order info
-              Expanded(
-                child: Column(
+        decoration: BoxDecoration(
+          color:
+              order.orderStatus == OrderStatus.cancelled
+                  ? Colors.grey[100]
+                  : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ORDER ID : ${order.merchantReference}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      order.mainProductName,
-                      style: const TextStyle(
+                      _getStatusTitle(order.orderStatus),
+                      style: TextStyle(
+                        color: _getStatusColor(order.status),
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'RM ${order.amount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    if (order.orderItems.length > 1)
-                      Text(
-                        '+${order.orderItems.length - 1} more items',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      order.displayDate,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
                   ],
                 ),
-              ),
-              // Arrow icon
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey[400],
+                if (order.orderStatus == OrderStatus.paid ||
+                    order.orderStatus == OrderStatus.pending)
+                  Consumer<CustomerOrderViewModel>(
+                    builder:
+                        (context, viewModel, _) => TextButton(
+                          onPressed: () async {
+                            await viewModel.cancelOrder(order.id, order.userId);
+
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Order cancelled successfully.',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                          ),
+                          child: const Text('Cancel'),
+                        ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Order details row
+            Row(
+              children: [
+                // Product image
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child:
+                      order.mainProductImageUrl.isNotEmpty
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              order.mainProductImageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return _buildPlaceholderImage();
+                              },
+                            ),
+                          )
+                          : _buildPlaceholderImage(),
+                ),
+                const SizedBox(width: 16),
+                // Order info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'ORDER ID : ${order.merchantReference}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        order.mainProductName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'RM ${order.amount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (order.orders.length > 1)
+                        Text(
+                          '+${order.orders.length - 1} more items',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                // Arrow icon
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey[400],
+                ),
+              ],
+            ),
+            // Cancelled order note
+            if (order.orderStatus == OrderStatus.cancelled) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Cancel Reason: ${order.cancelReason}',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ],
-          ),
-          // Cancelled order note
-          if (order.orderStatus == OrderStatus.cancelled) ...[
-            const SizedBox(height: 12),
-            Text(
-              'The order was cancelled by the user',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 12,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
           ],
-        ],
+        ),
       ),
-    )
     );
   }
 
@@ -483,32 +521,44 @@ class OrderCard extends StatelessWidget {
     switch (status) {
       case OrderStatus.delivered:
         return 'Delivered';
-      case OrderStatus.processing:
+      case OrderStatus.paid:
+      case OrderStatus.pending:
         return 'Processing';
       case OrderStatus.cancelled:
         return 'Cancelled';
+      case OrderStatus.shipped:
+        return 'Shipped';
     }
   }
 
   String _getOrderStatusMessage(OrderStatus status) {
-  switch (status) {
-    case OrderStatus.processing:
-      return "The seller will send your order";
-    case OrderStatus.delivered:
-      return "The seller has sent your order";
-    case OrderStatus.cancelled:
-      return "The seller has cancelled your order";
-  }
-}
-
-  Color _getStatusColor(OrderStatus status) {
     switch (status) {
+      case OrderStatus.paid:
+      case OrderStatus.pending:
+        return "The seller will send your order";
+      case OrderStatus.shipped:
+        return "Your item is on delivery";
       case OrderStatus.delivered:
-        return Colors.green[700]!;
-      case OrderStatus.processing:
-        return Colors.orange[700]!;
+        return "The seller has sent your order";
       case OrderStatus.cancelled:
-        return Colors.red[700]!;
+        return "Your order has been cancelled your order";
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'paid':
+        return Colors.green;
+      case 'shipped':
+        return Colors.orange;
+      case 'delivered':
+        return Colors.blue;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 }

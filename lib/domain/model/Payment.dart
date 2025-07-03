@@ -25,6 +25,15 @@ class Payment {
     );
   }
 
+  Map<String, dynamic> toMap() {
+    return {
+      'pspReference': pspReference,
+      'resultCode': resultCode,
+      'status': status,
+      'updatedAt': Timestamp.fromDate(updatedAt),
+    };
+  }
+
   @override
   String toString() {
     return 'Payment('

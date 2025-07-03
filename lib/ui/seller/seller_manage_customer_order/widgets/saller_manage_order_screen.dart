@@ -110,7 +110,7 @@ class _SallerManageOrderScreenState extends State<SallerManageOrderScreen>
         case 3: // Completed
           filtered =
               _allOrders
-                  .where((order) => order.status.toLowerCase() == "completed")
+                  .where((order) => order.status.toLowerCase() == "delivered")
                   .toList();
           break;
         case 4: // Cancelled

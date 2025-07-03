@@ -492,7 +492,7 @@ class _SellerManageOrderDetailScreenState
               } else if (orderStatus == 'shipped') {
                 statusOptions.add(
                   DropdownMenuItem(
-                    value: 'completed',
+                    value: 'delivered',
                     enabled: viewModel.isDeliveredEnabled(),
                     child: Text('Delivered'),
                   ),

@@ -17,7 +17,7 @@ class AddressSection extends StatefulWidget {
 }
 
 class AddressSectionState extends State<AddressSection> {
-  final _fullNameController = TextEditingController(); // Add this
+  final _fullNameController = TextEditingController();
   final _address1Controller = TextEditingController();
   final _address2Controller = TextEditingController();
   final _cityController = TextEditingController();
@@ -59,6 +59,8 @@ class AddressSectionState extends State<AddressSection> {
       _fullNameController.text =
           '${widget.user!.firstName} ${widget.user!.lastName}';
     }
+
+    print(widget.initialAddress);
 
     // Populate address if available
     if (widget.initialAddress != null) {

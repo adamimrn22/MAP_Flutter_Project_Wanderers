@@ -4,7 +4,7 @@ import 'package:mycrochetbag/data/services/customer_order_service.dart';
 
 class CustomerOrderViewModel extends ChangeNotifier {
   final OrderService _orderService = OrderService();
-  
+
   List<OrderModel> _allOrders = [];
   List<OrderModel> _filteredOrders = [];
   bool _isLoading = true;
@@ -50,6 +50,7 @@ class CustomerOrderViewModel extends ChangeNotifier {
   // Filter orders by status
   void filterOrders(OrderStatus? status) {
     _currentFilter = status;
+    print('status: ${status}');
     _applyFilter();
     notifyListeners();
   }
@@ -59,9 +60,10 @@ class CustomerOrderViewModel extends ChangeNotifier {
     if (_currentFilter == null) {
       _filteredOrders = List.from(_allOrders);
     } else {
-      _filteredOrders = _allOrders
-          .where((order) => order.orderStatus == _currentFilter)
-          .toList();
+      _filteredOrders =
+          _allOrders
+              .where((order) => order.orderStatus == _currentFilter)
+              .toList();
     }
   }
 
@@ -74,21 +76,15 @@ class CustomerOrderViewModel extends ChangeNotifier {
   int get totalOrdersCount => _allOrders.length;
 
   // Cancel an order
-  Future<void> cancelOrder(String orderId) async {
+  Future<void> cancelOrder(String orderId, String userId) async {
     try {
-      await _orderService.cancelOrder(orderId);
-      // Orders will be automatically updated through the stream
+      String orderDoc = '${userId}/orders/${orderId}';
+      await _orderService.cancelOrder(orderDoc, 'Cancelled By User');
     } catch (e) {
       _error = e.toString();
+      print(e);
       notifyListeners();
     }
-  }
-
-  // Track order (you can implement this based on your tracking system)
-  void trackOrder(String orderId) {
-    // Implement tracking logic here
-    // For example, navigate to tracking screen or show tracking dialog
-    print('Tracking order: $orderId');
   }
 
   // Refresh orders

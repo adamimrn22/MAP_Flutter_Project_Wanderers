@@ -6,6 +6,7 @@ class OrderItem {
   final double price;
   final int quantity;
   final String size;
+  String imageUrl;
 
   OrderItem({
     required this.color,
@@ -15,6 +16,7 @@ class OrderItem {
     required this.price,
     required this.quantity,
     required this.size,
+    required this.imageUrl,
   });
 
   factory OrderItem.fromMap(Map<String, dynamic> map) {
@@ -26,6 +28,7 @@ class OrderItem {
       price: (map['price'] ?? 0).toDouble(),
       quantity: map['quantity'] ?? 1,
       size: map['size'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
     );
   }
 
@@ -40,5 +43,18 @@ class OrderItem {
         'quantity: $quantity, '
         'price: $price'
         ')';
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'color': color,
+      'id': id,
+      'itemId': itemId,
+      'name': name,
+      'price': price,
+      'quantity': quantity,
+      'size': size,
+      'imageUrl': imageUrl,
+    };
   }
 }

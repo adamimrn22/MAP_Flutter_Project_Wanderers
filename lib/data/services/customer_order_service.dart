@@ -16,7 +16,10 @@ class OrderService {
 
       if (doc.exists) {
         final data = doc.data();
-        if (data != null && data['images'] != null && data['images'] is List && data['images'].isNotEmpty) {
+        if (data != null &&
+            data['images'] != null &&
+            data['images'] is List &&
+            data['images'].isNotEmpty) {
           final imageUrl = data['images'][0];
           print('✅ Found imageUrl from images[0]: $imageUrl');
           return imageUrl;
@@ -31,8 +34,9 @@ class OrderService {
     }
     return '';
   }
+
   // Get current user's orders
- Stream<List<OrderModel>> getUserOrders() {
+  Stream<List<OrderModel>> getUserOrders() {
     final currentUser = _auth.currentUser;
     print("Current UID: ${currentUser?.uid}");
     if (currentUser == null) {
@@ -46,39 +50,43 @@ class OrderService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .asyncMap((snapshot) async {
-      final orders = <OrderModel>[];
+          final orders = <OrderModel>[];
 
-      for (final doc in snapshot.docs) {
-        final order = OrderModel.fromFirestore(doc);
-        bool updated = false;
+          for (final doc in snapshot.docs) {
+            final order = OrderModel.fromFirestore(doc);
+            bool updated = false;
 
-        for (final item in order.orderItems) {
-          print('🧵 Checking item: ${item.name}, itemId: ${item.itemId}');
-          if (item.imageUrl.isEmpty) {
-            final fetchedImageUrl = await _fetchImageUrlByProductId(item.itemId);
-            if (fetchedImageUrl.isNotEmpty) {
-              print('✅ Updating item ${item.name} with imageUrl: $fetchedImageUrl');
-              item.imageUrl = fetchedImageUrl;
-              updated = true;
-            } else {
-              print('❌ No imageUrl found for itemId: ${item.itemId}');
+            for (final item in order.orders) {
+              print('🧵 Checking item: ${item.name}, itemId: ${item.itemId}');
+              if (item.imageUrl.isEmpty) {
+                final fetchedImageUrl = await _fetchImageUrlByProductId(
+                  item.itemId,
+                );
+                if (fetchedImageUrl.isNotEmpty) {
+                  print(
+                    '✅ Updating item ${item.name} with imageUrl: $fetchedImageUrl',
+                  );
+                  item.imageUrl = fetchedImageUrl;
+                  updated = true;
+                } else {
+                  print('❌ No imageUrl found for itemId: ${item.itemId}');
+                }
+              }
             }
+
+            if (updated) {
+              // Save updated orderItems to Firestore
+              await doc.reference.update({
+                'orders': order.orders.map((i) => i.toMap()).toList(),
+              });
+              print("✅ Firestore updated with missing imageUrl");
+            }
+
+            orders.add(order);
           }
-        }
 
-        if (updated) {
-          // Save updated orderItems to Firestore
-          await doc.reference.update({
-            'orders': order.orderItems.map((i) => i.toMap()).toList(),
-          });
-          print("✅ Firestore updated with missing imageUrl");
-        }
-
-        orders.add(order);
-      }
-
-      return orders;
-    });
+          return orders;
+        });
   }
 
   // Get orders by status
@@ -95,12 +103,11 @@ class OrderService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => OrderModel.fromFirestore(doc))
-          .toList();
-    });
+          return snapshot.docs
+              .map((doc) => OrderModel.fromFirestore(doc))
+              .toList();
+        });
   }
-
 
   // Update order status (for admin/seller use)
   Future<void> updateOrderStatus(String orderId, String status) async {
@@ -128,10 +135,11 @@ class OrderService {
   }
 
   // Cancel order (if allowed)
-  Future<void> cancelOrder(String orderId) async {
+  Future<void> cancelOrder(String orderId, String cancelReason) async {
     try {
       await _firestore.collection('orders').doc(orderId).update({
         'status': 'cancelled',
+        'cancelReason': cancelReason,
         'updatedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
@@ -147,15 +155,17 @@ class OrderService {
     }
 
     try {
-      final snapshot = await _firestore
-          .collection('orders')
-          .where('userId', isEqualTo: currentUser.uid)
-          .get();
+      final snapshot =
+          await _firestore
+              .collection('orders')
+              .where('userId', isEqualTo: currentUser.uid)
+              .get();
 
       int totalOrders = snapshot.docs.length;
       int processingOrders = 0;
       int deliveredOrders = 0;
       int cancelledOrders = 0;
+      int shippedOrders = 0;
       double totalSpent = 0;
 
       for (final doc in snapshot.docs) {
@@ -163,9 +173,15 @@ class OrderService {
         totalSpent += order.amount;
 
         switch (order.orderStatus) {
-          case OrderStatus.processing:
+          case OrderStatus.paid:
+          case OrderStatus.pending:
             processingOrders++;
             break;
+
+          case OrderStatus.shipped:
+            shippedOrders++;
+            break;
+
           case OrderStatus.delivered:
             deliveredOrders++;
             break;
@@ -180,6 +196,7 @@ class OrderService {
         processingOrders: processingOrders,
         deliveredOrders: deliveredOrders,
         cancelledOrders: cancelledOrders,
+        shippedOrders: shippedOrders,
         totalSpent: totalSpent,
       );
     } catch (e) {
@@ -190,10 +207,11 @@ class OrderService {
   // Check if user can cancel order (based on status and time)
   bool canCancelOrder(OrderModel order) {
     // Can only cancel processing orders
-    if (order.orderStatus != OrderStatus.processing) return false;
-    
+    if (order.orderStatus != OrderStatus.paid) return false;
+
     // Can only cancel within 24 hours of creation (example business rule)
-    final hoursSinceCreated = DateTime.now().difference(order.createdAt).inHours;
+    final hoursSinceCreated =
+        DateTime.now().difference(order.createdAt).inHours;
     return hoursSinceCreated <= 24;
   }
 
@@ -213,10 +231,10 @@ class OrderService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => OrderModel.fromFirestore(doc))
-          .toList();
-    });
+          return snapshot.docs
+              .map((doc) => OrderModel.fromFirestore(doc))
+              .toList();
+        });
   }
 }
 
@@ -226,12 +244,14 @@ class OrderStatistics {
   final int processingOrders;
   final int deliveredOrders;
   final int cancelledOrders;
+  final int shippedOrders;
   final double totalSpent;
 
   OrderStatistics({
     required this.totalOrders,
     required this.processingOrders,
     required this.deliveredOrders,
+    required this.shippedOrders,
     required this.cancelledOrders,
     required this.totalSpent,
   });
@@ -240,6 +260,7 @@ class OrderStatistics {
     return OrderStatistics(
       totalOrders: 0,
       processingOrders: 0,
+      shippedOrders: 0,
       deliveredOrders: 0,
       cancelledOrders: 0,
       totalSpent: 0.0,

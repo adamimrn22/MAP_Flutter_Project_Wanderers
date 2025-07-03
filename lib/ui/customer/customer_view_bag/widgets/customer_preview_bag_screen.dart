@@ -440,6 +440,7 @@ class _BagDetailScreenState extends State<BagDetailScreen> {
                                 'Added to cart: ${viewModel.productName} (Size: ${viewModel.selectedSize}, Color: ${viewModel.selectedColor})',
                               ),
                               backgroundColor: Colors.green,
+                              duration: Duration(seconds: 1),
                             ),
                           );
                         } else if (!success && mounted) {

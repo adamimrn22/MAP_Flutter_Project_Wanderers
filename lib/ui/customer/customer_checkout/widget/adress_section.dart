@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:mycrochetbag/domain/model/Address.dart';
+import 'package:mycrochetbag/domain/model/User.dart';
 
 class AddressSection extends StatefulWidget {
-  const AddressSection({super.key});
+  final Address? initialAddress;
+  final User? user; // Add user parameter
+
+  const AddressSection({
+    super.key,
+    this.initialAddress,
+    this.user, // Add this
+  });
 
   @override
   AddressSectionState createState() => AddressSectionState();
 }
 
 class AddressSectionState extends State<AddressSection> {
+  final _fullNameController = TextEditingController(); // Add this
   final _address1Controller = TextEditingController();
   final _address2Controller = TextEditingController();
   final _cityController = TextEditingController();
@@ -19,7 +29,7 @@ class AddressSectionState extends State<AddressSection> {
     'Johor',
     'Kedah',
     'Kelantan',
-    'Kuala Lumpur',
+    'Wilayah Persekutuan Kuala Lumpur',
     'Labuan',
     'Melaka',
     'Negeri Sembilan',
@@ -35,7 +45,37 @@ class AddressSectionState extends State<AddressSection> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _populateFields(); // Add this
+  }
+
+  void _populateFields() {
+    // Populate name from user if available
+    if (widget.initialAddress != null &&
+        widget.initialAddress!.fullName.isNotEmpty) {
+      _fullNameController.text = widget.initialAddress!.fullName;
+    } else if (widget.user != null) {
+      _fullNameController.text =
+          '${widget.user!.firstName} ${widget.user!.lastName}';
+    }
+
+    // Populate address if available
+    if (widget.initialAddress != null) {
+      _address1Controller.text = widget.initialAddress!.address1;
+      _address2Controller.text = widget.initialAddress!.address2;
+      _cityController.text = widget.initialAddress!.city;
+      _postcodeController.text = widget.initialAddress!.postcode;
+      _selectedState =
+          widget.initialAddress!.state.isNotEmpty
+              ? widget.initialAddress!.state
+              : null;
+    }
+  }
+
+  @override
   void dispose() {
+    _fullNameController.dispose();
     _address1Controller.dispose();
     _address2Controller.dispose();
     _cityController.dispose();
@@ -44,7 +84,8 @@ class AddressSectionState extends State<AddressSection> {
   }
 
   bool validateFields() {
-    return _address1Controller.text.isNotEmpty &&
+    return _fullNameController.text.isNotEmpty &&
+        _address1Controller.text.isNotEmpty &&
         _cityController.text.isNotEmpty &&
         _selectedState != null &&
         _postcodeController.text.isNotEmpty;
@@ -52,12 +93,25 @@ class AddressSectionState extends State<AddressSection> {
 
   Map<String, String> getAddressData() {
     return {
+      'fullName': _fullNameController.text,
       'address1': _address1Controller.text,
       'address2': _address2Controller.text,
       'city': _cityController.text,
       'state': _selectedState ?? '',
       'postcode': _postcodeController.text,
     };
+  }
+
+  // Add this method to get Address object
+  Address getAddress() {
+    return Address(
+      fullName: _fullNameController.text,
+      address1: _address1Controller.text,
+      address2: _address2Controller.text,
+      city: _cityController.text,
+      postcode: _postcodeController.text,
+      state: _selectedState ?? '',
+    );
   }
 
   @override
@@ -88,6 +142,14 @@ class AddressSectionState extends State<AddressSection> {
           ),
           const SizedBox(height: 16),
 
+          // Full Name
+          _buildInputField(
+            label: 'Full Name*',
+            controller: _fullNameController,
+            hintText: 'Enter your full name',
+          ),
+          const SizedBox(height: 16),
+
           // Address Line 1
           _buildInputField(
             label: 'Address Line 1 *',
@@ -112,7 +174,6 @@ class AddressSectionState extends State<AddressSection> {
           ),
           const SizedBox(height: 16),
 
-          // State (replacing Postcode)
           // Postcode
           _buildInputField(
             label: 'Postcode *',
@@ -178,7 +239,6 @@ class AddressSectionState extends State<AddressSection> {
     return GestureDetector(
       onTap: () => _showStateSelectionBottomSheet(context),
       child: AbsorbPointer(
-        // Disables interactions with the underlying text field
         child: _buildInputField(
           label: 'State *',
           controller: TextEditingController(

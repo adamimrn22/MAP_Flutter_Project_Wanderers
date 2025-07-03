@@ -284,17 +284,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                 _buildOptionTile(context, 'Change Password', () {
                   context.push(Routes.changePassword);
                 }),
-                _buildOptionTile(context, 'Notification Preference', () {
-                  // TODO: Implement Notification Preference
-                }),
-                _buildOptionTile(context, 'Payment Method', () {
-                  // TODO: Implement Payment Method
-                }),
-                _buildOptionTile(context, 'FAQ', () {
-                  // TODO: Implement FAQ
-                }),
-                _buildOptionTile(context, 'Privacy Policy', () {
-                  // TODO: Implement Privacy Policy
+                _buildOptionTile(context, 'Address', () {
+                  context.push(Routes.customerAddressInformation);
                 }),
                 _buildOptionTile(
                   context,

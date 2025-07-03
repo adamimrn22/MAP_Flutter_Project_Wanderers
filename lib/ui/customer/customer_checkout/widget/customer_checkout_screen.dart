@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mycrochetbag/data/model/price_summary.dart';
+import 'package:mycrochetbag/data/services/auth_service.dart';
+import 'package:mycrochetbag/data/services/user_information_service.dart';
 import 'package:mycrochetbag/domain/model/CartItem.dart';
-import 'package:mycrochetbag/routing/routes.dart';
+import 'package:mycrochetbag/domain/model/User.dart';
 import 'package:mycrochetbag/ui/customer/customer_checkout/viewmodel/process_payment_viewmodel.dart';
 import 'package:mycrochetbag/ui/customer/customer_checkout/widget/adress_section.dart';
 import 'package:mycrochetbag/ui/customer/customer_checkout/widget/payment_method_section.dart';
 import 'package:mycrochetbag/ui/customer/customer_checkout/widget/card_information_section.dart';
 import 'package:mycrochetbag/ui/customer/customer_checkout/widget/fpx_section.dart';
 import 'package:mycrochetbag/ui/customer/customer_checkout/widget/checkout_summary.dart';
-import 'package:mycrochetbag/ui/customer/customer_checkout/widget/payment_success_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final PriceSummary priceSummary;
@@ -40,20 +40,48 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   PaymentMethod selectedPaymentMethod = PaymentMethod.fpx;
   bool _isProcessingPayment = false;
+  bool _isLoadingUser = true;
 
   final AppLinks _appLinks = AppLinks();
   StreamSubscription? _deepLinkSubscription;
+
+  User? _currentUser;
+  final UserInformationService _userService = UserInformationService();
+  final AuthServices _authService = AuthServices();
 
   @override
   void initState() {
     super.initState();
     _initDeepLinkListener();
+    _loadCurrentUser();
   }
 
   @override
   void dispose() {
     _deepLinkSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final userId = _authService.getCurrentUserId();
+      if (userId != null) {
+        final user = await _userService.fetchUserById(userId);
+        setState(() {
+          _currentUser = user;
+          _isLoadingUser = false;
+        });
+      } else {
+        setState(() {
+          _isLoadingUser = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading user: $e');
+      setState(() {
+        _isLoadingUser = false;
+      });
+    }
   }
 
   void _initDeepLinkListener() {
@@ -109,41 +137,48 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body:
+          _isLoadingUser
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
                 children: [
-                  AddressSection(key: _addressKey),
-                  const SizedBox(height: 24),
-                  PaymentMethodSection(
-                    key: _paymentMethodKey,
-                    onPaymentMethodChanged: (PaymentMethod method) {
-                      setState(() {
-                        selectedPaymentMethod = method;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 24),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AddressSection(
+                            key: _addressKey,
+                            initialAddress: _currentUser?.address,
+                            user: _currentUser,
+                          ),
+                          const SizedBox(height: 24),
+                          PaymentMethodSection(
+                            key: _paymentMethodKey,
+                            onPaymentMethodChanged: (PaymentMethod method) {
+                              setState(() {
+                                selectedPaymentMethod = method;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 24),
 
-                  // Conditional rendering based on selected payment method
-                  if (selectedPaymentMethod == PaymentMethod.card)
-                    CardInformationSection(key: _cardKey)
-                  else if (selectedPaymentMethod == PaymentMethod.fpx)
-                    FpxSection(key: _fpxKey),
+                          // Conditional rendering based on selected payment method
+                          if (selectedPaymentMethod == PaymentMethod.card)
+                            CardInformationSection(key: _cardKey)
+                          else if (selectedPaymentMethod == PaymentMethod.fpx)
+                            FpxSection(key: _fpxKey),
+                        ],
+                      ),
+                    ),
+                  ),
+                  CheckoutSummary(
+                    priceSummary: widget.priceSummary,
+                    onPayPressed: _processPayment,
+                  ),
                 ],
               ),
-            ),
-          ),
-          CheckoutSummary(
-            priceSummary: widget.priceSummary,
-            onPayPressed: _processPayment,
-          ),
-        ],
-      ),
     );
   }
 
@@ -167,6 +202,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         );
         return;
+      }
+
+      if (_currentUser != null) {
+        final address = _addressKey.currentState!.getAddress();
+        await _userService.updateUserAddress(_currentUser!.id!, address);
       }
 
       // Validate payment information based on selected method

@@ -1,3 +1,5 @@
+import 'package:mycrochetbag/domain/model/Address.dart';
+
 class User {
   final String? id;
   final String firstName;
@@ -5,6 +7,7 @@ class User {
   final String email;
   final String phoneNumber;
   final String role;
+  final Address? address; // Add this
 
   User({
     this.id,
@@ -13,6 +16,7 @@ class User {
     required this.email,
     required this.phoneNumber,
     required this.role,
+    this.address, // Add this
   });
 
   User copyWith({
@@ -22,6 +26,7 @@ class User {
     String? email,
     String? phoneNumber,
     String? role,
+    Address? address, // Add this
   }) {
     return User(
       id: id ?? this.id,
@@ -30,6 +35,7 @@ class User {
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       role: role ?? this.role,
+      address: address ?? this.address, // Add this
     );
   }
 
@@ -41,11 +47,18 @@ class User {
       email: map['email'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
       role: map['role'] ?? '',
+      address: map['address'] != null ? Address.fromMap(map['address']) : null,
     );
   }
 
-  @override
-  String toString() {
-    return 'User(id: $id, name: $firstName $lastName, email: $email, phone: $phoneNumber, role: $role)';
+  Map<String, dynamic> toMap() {
+    return {
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'role': role,
+      'address': address?.toMap(),
+    };
   }
 }

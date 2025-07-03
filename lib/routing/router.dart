@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mycrochetbag/ui/authentication/forgot_password/widgets/reset_password_screen.dart';
 import 'package:mycrochetbag/ui/authentication/change_password/widget/change_password_screen.dart';
 import 'package:mycrochetbag/ui/authentication/login/view_model/login_viewmodel.dart';
+import 'package:mycrochetbag/ui/customer/customer_address/widget/customer_address_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_cart/widget/customer_cart_screen.dart';
 import 'package:mycrochetbag/ui/customer/customer_checkout/widget/payment_success_screen.dart';
 //import 'package:mycrochetbag/ui/customer/customer_custom/widget/customer_custom_order_screen.dart';
@@ -41,7 +42,7 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 GoRouter router(AuthServices authServices) => GoRouter(
   navigatorKey: _rootNavigatorKey,
   redirect: buildRedirect(authServices),
-  initialLocation: Routes.sellerManageOrderDetail,
+  initialLocation: Routes.login,
   debugLogDiagnostics: true,
   refreshListenable: authServices,
   routes: [
@@ -109,6 +110,10 @@ GoRouter router(AuthServices authServices) => GoRouter(
         GoRoute(
           path: Routes.customerEditProfile,
           builder: (context, state) => const CustomerEditProfileScreen(),
+        ),
+        GoRoute(
+          path: Routes.customerAddressInformation,
+          builder: (context, state) => const CustomerAddressManagementScreen(),
         ),
       ],
     ),

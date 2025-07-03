@@ -147,12 +147,6 @@ class SellerProfileScreen extends StatelessWidget {
                 _buildOptionTile(context, 'Change Password', () {
                   context.push(Routes.changePassword);
                 }),
-                _buildOptionTile(context, 'Notification Preference', () {
-                  // TODO: Implement Notification Preference
-                }),
-                _buildOptionTile(context, 'Contact Administrator', () {
-                  // TODO: Implement Privacy Policy
-                }),
                 const SizedBox(height: 80),
               ],
             ),

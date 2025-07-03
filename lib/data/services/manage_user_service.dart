@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mycrochetbag/data/repositories/auth/user_repository.dart';
 import 'package:mycrochetbag/domain/model/User.dart';
 import 'package:mycrochetbag/utils/result.dart';
@@ -26,5 +27,24 @@ class ManageUserService {
 
   Future<Result<bool>> removeUser(String id) async {
     return await _userRepository.deleteUser(id);
+  }
+
+  static Future<User?> fetchUserById(String userId) async {
+    try {
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .get();
+
+      if (doc.exists && doc.data() != null) {
+        return User.fromMap(doc.data()!, id: doc.id);
+      }
+
+      return null;
+    } catch (e) {
+      print('Error fetching user by ID: $e');
+      return null;
+    }
   }
 }

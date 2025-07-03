@@ -32,4 +32,20 @@ class User {
       role: role ?? this.role,
     );
   }
+
+  factory User.fromMap(Map<String, dynamic> map, {String? id}) {
+    return User(
+      id: id,
+      firstName: map['firstName'] ?? '',
+      lastName: map['lastName'] ?? '',
+      email: map['email'] ?? '',
+      phoneNumber: map['phoneNumber'] ?? '',
+      role: map['role'] ?? '',
+    );
+  }
+
+  @override
+  String toString() {
+    return 'User(id: $id, name: $firstName $lastName, email: $email, phone: $phoneNumber, role: $role)';
+  }
 }

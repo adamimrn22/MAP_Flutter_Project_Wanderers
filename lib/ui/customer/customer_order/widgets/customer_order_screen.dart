@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../view_model/customer_order_view_model.dart';
+import 'package:mycrochetbag/domain/model/Order.dart';
 
 class CustomerOrderScreen extends StatefulWidget {
   const CustomerOrderScreen({super.key});
@@ -10,112 +13,167 @@ class CustomerOrderScreen extends StatefulWidget {
 class _CustomerOrderScreenState extends State<CustomerOrderScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  // Sample order data
-  final List<OrderItem> orders = [
-    OrderItem(
-      id: "P09727004656",
-      price: 22.90,
-      status: OrderStatus.delivered,
-      date: "03 Mar, 3 Sept",
-      imageUrl: "assets/bag.png", // You'll need to add this asset
-    ),
-    OrderItem(
-      id: "P09727004656",
-      price: 22.90,
-      status: OrderStatus.processing,
-      date: "03 Mar, 3 Sept",
-      imageUrl: "assets/bag.png",
-    ),
-    OrderItem(
-      id: "P09727004656",
-      price: 22.90,
-      status: OrderStatus.cancelled,
-      date: "Order cancelled by the user",
-      imageUrl: "assets/bag.png",
-    ),
-  ];
+  late CustomerOrderViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _viewModel = CustomerOrderViewModel();
+    _viewModel.init();
+    
+    // Listen to tab changes to filter orders
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        _filterOrdersByTab(_tabController.index);
+      }
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
-  List<OrderItem> getFilteredOrders(OrderStatus? status) {
-    if (status == null) return orders;
-    return orders.where((order) => order.status == status).toList();
+  void _filterOrdersByTab(int index) {
+    switch (index) {
+      case 0:
+        _viewModel.filterOrders(null); // All orders
+        break;
+      case 1:
+        _viewModel.filterOrders(OrderStatus.processing);
+        break;
+      case 2:
+        _viewModel.filterOrders(OrderStatus.delivered);
+        break;
+      case 3:
+        _viewModel.filterOrders(OrderStatus.cancelled);
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return ChangeNotifierProvider.value(
+      value: _viewModel,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'My Orders',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          title: const Text(
+            'My Orders',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+        body: Consumer<CustomerOrderViewModel>(
+          builder: (context, viewModel, child) {
+            if (viewModel.error != null) {
+              return _buildErrorWidget(viewModel);
+            }
+
+            return Column(
+              children: [
+                // Tab Bar
+                Container(
+                  color: Colors.white,
+                  child: TabBar(
+                    controller: _tabController,
+                    labelColor: Colors.black,
+                    unselectedLabelColor: Colors.grey[600],
+                    indicatorColor: Colors.black,
+                    indicatorWeight: 2,
+                    labelStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    tabs: [
+                      Tab(
+                        text: 'All (${viewModel.totalOrdersCount})',
+                      ),
+                      Tab(
+                        text: 'Processing (${viewModel.getOrdersCountByStatus(OrderStatus.processing)})',
+                      ),
+                      Tab(
+                        text: 'Delivered (${viewModel.getOrdersCountByStatus(OrderStatus.delivered)})',
+                      ),
+                      Tab(
+                        text: 'Cancelled (${viewModel.getOrdersCountByStatus(OrderStatus.cancelled)})',
+                      ),
+                    ],
+                  ),
+                ),
+                // Content
+                Expanded(
+                  child: viewModel.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : RefreshIndicator(
+                          onRefresh: viewModel.refreshOrders,
+                          child: OrderListView(orders: viewModel.filteredOrders),
+                        ),
+                ),
+              ],
+            );
+          },
         ),
       ),
-      body: Column(
+    );
+  }
+
+  Widget _buildErrorWidget(CustomerOrderViewModel viewModel) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Tab Bar
-          Container(
-            color: Colors.white,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: Colors.black,
-              unselectedLabelColor: Colors.grey[600],
-              indicatorColor: Colors.black,
-              indicatorWeight: 2,
-              labelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-              ),
-              tabs: const [
-                Tab(text: 'All'),
-                Tab(text: 'Processing'),
-                Tab(text: 'Delivered'),
-                Tab(text: 'Cancelled'),
-              ],
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Failed to load orders',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
             ),
           ),
-          // Tab Bar View
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // All Orders
-                OrderListView(orders: getFilteredOrders(null)),
-                // Processing Orders
-                OrderListView(orders: getFilteredOrders(OrderStatus.processing)),
-                // Delivered Orders
-                OrderListView(orders: getFilteredOrders(OrderStatus.delivered)),
-                // Cancelled Orders
-                OrderListView(orders: getFilteredOrders(OrderStatus.cancelled)),
-              ],
+          const SizedBox(height: 8),
+          Text(
+            viewModel.error ?? 'Unknown error occurred',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
             ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              viewModel.clearError();
+              viewModel.refreshOrders();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Retry'),
           ),
         ],
       ),
@@ -124,7 +182,7 @@ class _CustomerOrderScreenState extends State<CustomerOrderScreen>
 }
 
 class OrderListView extends StatelessWidget {
-  final List<OrderItem> orders;
+  final List<OrderModel> orders;
 
   const OrderListView({super.key, required this.orders});
 
@@ -132,12 +190,32 @@ class OrderListView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (orders.isEmpty) {
       return const Center(
-        child: Text(
-          'No orders found',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 64,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'No orders found',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Your orders will appear here',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -155,7 +233,7 @@ class OrderListView extends StatelessWidget {
 }
 
 class OrderCard extends StatelessWidget {
-  final OrderItem order;
+  final OrderModel order;
 
   const OrderCard({super.key, required this.order});
 
@@ -164,7 +242,7 @@ class OrderCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: order.status == OrderStatus.cancelled 
+        color: order.orderStatus == OrderStatus.cancelled 
             ? Colors.grey[100] 
             : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -188,16 +266,16 @@ class OrderCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _getStatusTitle(order.status),
+                    _getStatusTitle(order.orderStatus),
                     style: TextStyle(
-                      color: _getStatusColor(order.status),
+                      color: _getStatusColor(order.orderStatus),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    order.date,
+                    order.displayDate,
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 12,
@@ -207,7 +285,7 @@ class OrderCard extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // Handle track order
+                  context.read<CustomerOrderViewModel>().trackOrder(order.id);
                 },
                 child: const Text(
                   'Track',
@@ -232,18 +310,18 @@ class OrderCard extends StatelessWidget {
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: order.imageUrl.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          order.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildPlaceholderImage();
-                          },
-                        ),
-                      )
-                    : _buildPlaceholderImage(),
+                child: order.mainProductImageUrl.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        order.mainProductImageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildPlaceholderImage();
+                        },
+                      ),
+                    )
+                  : _buildPlaceholderImage(),
               ),
               const SizedBox(width: 16),
               // Order info
@@ -252,21 +330,39 @@ class OrderCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ORDER ID : ${order.id}',
+                      'ORDER ID : ${order.merchantReference}',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.5,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
-                      'RM ${order.price.toStringAsFixed(2)}',
+                      order.mainProductName,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'RM ${order.amount.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    if (order.orderItems.length > 1)
+                      Text(
+                        '+${order.orderItems.length - 1} more items',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -279,7 +375,7 @@ class OrderCard extends StatelessWidget {
             ],
           ),
           // Cancelled order note
-          if (order.status == OrderStatus.cancelled) ...[
+          if (order.orderStatus == OrderStatus.cancelled) ...[
             const SizedBox(height: 12),
             Text(
               'The order was cancelled by the user',
@@ -332,27 +428,4 @@ class OrderCard extends StatelessWidget {
         return Colors.red[700]!;
     }
   }
-}
-
-// Data models
-enum OrderStatus {
-  delivered,
-  processing,
-  cancelled,
-}
-
-class OrderItem {
-  final String id;
-  final double price;
-  final OrderStatus status;
-  final String date;
-  final String imageUrl;
-
-  OrderItem({
-    required this.id,
-    required this.price,
-    required this.status,
-    required this.date,
-    required this.imageUrl,
-  });
 }

@@ -23,6 +23,7 @@ dependencies:
   url_launcher: ^6.3.1
   app_links: ^6.4.0
   fl_chart:
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
